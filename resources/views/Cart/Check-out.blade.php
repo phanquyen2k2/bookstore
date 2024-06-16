@@ -1,7 +1,7 @@
 
-@extends('home.app')
+@extends('Cart.LayoutCart')
 
-@section('title', 'Checkout')
+@section('title', 'Check Out')
 
 @section('content')
 <div class="container">
@@ -12,7 +12,6 @@
         <div class="col-md-4 order-md-2 mb-4">
             <h4 class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-muted">Your cart</span>
-                
             </h4>
             <ul class="list-group mb-3 sticky-top">
                 @if(Session::has("cart") !=null)
@@ -25,7 +24,7 @@
                
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Total</span>
-                    <strong>${{ Session::get("cart")->totalPrice }}</strong>
+                    <strong>{{ Session::get("cart")->totalPrice }}đ</strong>
                 </li>
                 @endif
             </ul>
@@ -34,23 +33,39 @@
             <h4 class="mb-3">Billing address</h4>
             <form class="needs-validation" novalidate="" action="{{ route('processCheckout') }}" method="post">
                 @csrf
-                <div class="row"></div>
+                @if($userData)
                 <div class="mb-3">
                     <label for="username">Username</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="username" name="name" placeholder="Username" required="">
+                        <input type="text" class="form-control" id="username" name="name" placeholder="Username" value="{{ $userData['name'] }}" required="">
                         <div class="invalid-feedback" style="width: 100%;"> Your username is required. </div>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="phone">Phone<span class="text-muted">(Optional)</span></label>
-                    <input type="number" class="form-control" id="phone" name="phone" placeholder="Phone number" required="">
-                    <div class="invalid-feedback"> Please enter a valid phone number for shipping updates. </div>
+                    <label for="email">Email <span class="text-muted">(Optional)</span></label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" value="{{ $userData['email'] }}" required="">
+                    <div class="invalid-feedback"> Please enter a valid email address for shipping updates. </div>
+                </div>
+                @else
+                <!-- Nếu người dùng chưa đăng nhập, hiển thị form nhập thông tin -->
+                <div class="mb-3">
+                    <label for="username">Username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="username" name="name" placeholder="Username1" required="">
+                        <div class="invalid-feedback" style="width: 100%;"> Your username is required. </div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="email">Email <span class="text-muted">(Optional)</span></label>
                     <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required="">
                     <div class="invalid-feedback"> Please enter a valid email address for shipping updates. </div>
+                </div>
+                @endif
+                
+                <div class="mb-3">
+                    <label for="phone">Phone<span class="text-muted">(Optional)</span></label>
+                    <input type="number" class="form-control" id="phone" name="phone" placeholder="Phone number" required="">
+                    <div class="invalid-feedback"> Please enter a valid phone number for shipping updates. </div>
                 </div>
                 <div class="mb-3">
                     <label for="address">Address</label>
@@ -71,61 +86,23 @@
                         </select>
                     </div>
                 </div>
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <hr class="mb-4">
                 <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
             </form>
-            
         </div>
     </div>
-    <footer class="my-5 pt-5 text-muted text-center text-small">
-        
+    <footer class="my-5 pt-5 text-muted text-center text-small">  
     </footer>
 </div>
-     
-    </section>
+</section>
+   
 @endsection
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-    <style>
-        .container {
-  max-width: 960px;
-}
-
-.lh-condensed { line-height: 1.25; }
-    </style>
-</head>
-<body>
-    <script>(function () {
-        'use strict'
-        window.addEventListener('load', function () {
-          // Fetch all the forms we want to apply custom Bootstrap validation styles to
-          var forms = document.getElementsByClassName('needs-validation')
-      
-          // Loop over them and prevent submission
-          Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-              if (form.checkValidity() === false) {
-                event.preventDefault()
-                event.stopPropagation()
-              }
-              form.classList.add('was-validated')
-            }, false)
-          })
-        }, false)
-      }())</script>
-      <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
-      <script>
-          @if(session('error'))
-              alertify.error("{{ session('error') }}");
-          @endif
-      </script>
-    
-</body>
-</html>

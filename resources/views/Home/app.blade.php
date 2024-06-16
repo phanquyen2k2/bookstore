@@ -68,108 +68,90 @@
             text-decoration: line-through;
             color: #888;
         }
-      
     </style>
 
-    
-    <!-- Place favicon.ico in the root directory -->
-    <!-- Thay đổi favicon -->
-    
-<link rel="shortcut icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
-<!-- Thay đổi apple-touch-icon -->
-<link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
 
-<!-- Tất cả các tệp CSS được bao gồm ở đây -->
-<!-- CSS chính của Bootstrap framework -->
-    <!-- All css files are included here. -->
-    <!-- Bootstrap fremwork main css -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Owl Carousel min css -->
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-    <!-- This core.css file contents all plugings css file. -->
-    <link rel="stylesheet" href="css/core.css">
-    <!-- Theme shortcodes/elements style -->
-    <link rel="stylesheet" href="css/shortcode/shortcodes.css">
-    <!-- Theme main style -->
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Responsive css -->
-    <link rel="stylesheet" href="css/responsive.css">
-    <!-- User style -->
-    <link rel="stylesheet" href="css/custom.css">
-     <style>
+<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/core.css') }}">
+<link rel="stylesheet" href="{{ asset('css/shortcode/shortcodes.css') }}">
+{{-- <link rel="stylesheet" href="{{ asset('css/style.css') }}"> --}}
+<link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
+<!-- Modernizr JS -->
+<script src="{{ asset('js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <style>
         body {
-    font-family: 'Arial', sans-serif;
-    }
-
-     </style>
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
 </head>
 <body>
     @include('layouts.header')
-
-    <div class="container">
         @yield('content')
-    </div>
-        @include('layouts.footer')
-  
-    
-    <script src="js/vendor/modernizr-3.5.0.min.js"></script>
-    <script src="js/vendor/jquery-3.2.1.min.js"></script>
-    <!-- Bootstrap framework js -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- All js plugins included in this file. -->
-    <script src="js/plugins.js"></script>
-    <script src="js/slick.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <!-- Waypoints.min.js. -->
-    <script src="js/waypoints.min.js"></script>
-    <!-- Main js file that contents all jQuery plugins activation. -->
-    <script src="js/main.js"></script>
-
-       <!-- Main js file that contents all jQuery plugins activation. -->
-    <script src="js/main.js"></script>
-        <!-- JavaScript -->
-        <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
-   
-        <!-- CSS -->
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
-        <!-- Default theme -->
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
-        <!-- Semantic UI theme -->
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/semantic.min.css" />
-        <!-- Bootstrap theme -->
-        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.min.css" />
-       <script>
-           function AddCart(id) {
-               $.ajax({
-                   url: '/Add-Cart/' + id,
-                   type: 'GET',
-   
-               }).done(function (response) {
-   
-                   RenderCart(response);
-                   alertify.success('Added product to cart successfully')
-               });
-           }
-           $("#change-item-cart").on("click", ".remove__btn i", function () {
-   
-               $.ajax({
-                   url: '/Delete-Item-Cart/' + $(this).data("id"),
-                   type: 'GET',
-   
-               }).done(function (response) {
-   
-                   RenderCart(response);
-                   alertify.success('Product deletion was successful')
-               });
-           });
-           function RenderCart(response) {
-               $("#change-item-cart").empty();
-               $("#change-item-cart").html(response);
-               $("#total-quanty-show").text($("#total-quanty-cart").val())
-              
-           }
-       </script>
-          
+    @include('layouts.footer')
 </body>
 </html>
+ <!-- Include JavaScript files -->
+ <script src="{{ asset('js/vendor/jquery-3.2.1.min.js') }}"></script>
+ <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+ <script src="{{ asset('js/plugins.js') }}"></script>
+ <script src="{{ asset('js/slick.min.js') }}"></script>
+ <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
+ <script src="{{ asset('js/waypoints.min.js') }}"></script>
+ <script src="{{ asset('js/main.js') }}"></script>
+
+<!-- AlertifyJS for notifications -->
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/semantic.min.css" />
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.min.css" />
+
+<script>
+    function AddCart(id) {
+        $.ajax({
+            url: '/Add-Cart/' + id,
+            type: 'GET',
+            success: function(response) {
+                RenderCart(response);
+                alertify.success('Added product to cart successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error: ' + error);
+            }
+        });
+    }
+
+    $("#change-item-cart").on("click", ".remove__btn i", function () {
+        console.log("đã vào xóa");
+        $.ajax({
+            url: '/Delete-Item-Cart/' + $(this).data("id"),
+            type: 'GET',
+            success: function(response) {
+                RenderCart(response);
+                alertify.success('Product deletion was successful');
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error: ' + error);
+            }
+        });
+    });
+
+    function RenderCart(response) {
+        $("#change-item-cart").empty();
+        $("#change-item-cart").html(response);
+        $("#total-quanty-show").text($("#total-quanty-cart").val());
+    }
+
+    $(document).ready(function() {
+        @if(session('success'))
+            alertify.success("{{ session('success') }}");
+        @endif
+    });
+</script>

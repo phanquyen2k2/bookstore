@@ -562,17 +562,7 @@ nav.off__canvars--menu ul li ul li a:hover {
 
 
 
-/*-----------------------------------------
-  Header Search area
--------------------------------------------*/
-.search__area .search__inner form button::before {
-  color: #333;
-  content: "";
-  display: block;
-  font-family: Material-Design-Iconic-Font;
-  font-size: 29px;
-  transition: color 300ms ease 0s;
-}
+/* Header Search area */
 .search__area {
   background: #cfcfcd none repeat scroll 0 0;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.08);
@@ -580,20 +570,26 @@ nav.off__canvars--menu ul li ul li a:hover {
   position: fixed;
   right: 0;
   top: 0;
-  -webkit-transform: translateY(-200%);
-          transform: translateY(-200%);
+  transform: translateY(-200%);
   transition: all 300ms ease 0s;
   z-index: 2147483647;
 }
-.search__area .search__inner{
+
+.search__area.active {
+  transform: translateY(0);
+}
+
+.search__area .search__inner {
   position: relative;
 }
+
 .search__area .search__inner form {
   margin: 4em 0;
   padding: 0 40px 0 0;
   position: relative;
   text-align: center;
 }
+
 .search__area .search__inner form input[type="text"] {
   background: #fff none repeat scroll 0 0;
   border: medium none;
@@ -605,26 +601,13 @@ nav.off__canvars--menu ul li ul li a:hover {
   padding: 0 70px 0 20px;
   text-align: left;
 }
-.search__area .search__inner form input[type="text"]::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+
+.search__area .search__inner form input[type="text"]::placeholder {
   color: #333;
   font-size: 25px;
   font-weight: 300;
 }
-.search__area .search__inner form input[type="text"]::-moz-placeholder { /* Firefox 19+ */
-  color: #333;
-  font-size: 25px;
-  font-weight: 300;
-}
-.search__area .search__inner form input[type="text"]:-ms-input-placeholder { /* IE 10+ */
-  color: #333;
-  font-size: 25px;
-  font-weight: 300;
-}
-.search__area .search__inner form input[type="text"]:-moz-placeholder { /* Firefox 18- */
-  color: #333;
-  font-size: 25px;
-  font-weight: 300;
-}
+
 .search__area .search__inner form button {
   background: transparent none repeat scroll 0 0;
   border: 0 none;
@@ -638,12 +621,15 @@ nav.off__canvars--menu ul li ul li a:hover {
   width: 60px;
   transition: 0.3s;
 }
+
 .search__area .search__inner form button:hover {
   background: #c43b68 none repeat scroll 0 0;
 }
+
 .search__area .search__inner form button:hover::before {
   color: #fff;
 }
+
 .search__area .search__inner .search__close__btn {
   display: block;
   line-height: 58px;
@@ -651,27 +637,24 @@ nav.off__canvars--menu ul li ul li a:hover {
   right: 0;
   top: 0;
 }
+
 .search__area .search__inner .search__close__btn {
   color: #fff;
   cursor: pointer;
   font-size: 21px;
   line-height: 58px;
 }
+
 .search__close__btn .search__close__btn_icon i {
-    transition: all 0.5s ease 0s;
-    -webkit-transform: scale(1) rotate(0deg);
-            transform: scale(1) rotate(0deg);
+  transition: all 0.5s ease 0s;
+  transform: scale(1) rotate(0deg);
 }
+
 .search__close__btn .search__close__btn_icon:hover i {
-    -webkit-transform: scale(2) rotate(180deg);
-            transform: scale(2) rotate(180deg);
-    color: #c43b68;
+  transform: scale(2) rotate(180deg);
+  color: #c43b68;
 }
-.search__box__show__hide .search__area {
-  -webkit-transform: translateY(0px);
-          transform: translateY(0px);
-  transition: all 300ms ease 0s;
-}
+
 
 /*--------------------------
   Body Onerlay Menu

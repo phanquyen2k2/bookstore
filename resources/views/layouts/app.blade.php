@@ -31,13 +31,11 @@
                     </div>
                 </header>
             @endif
-
             <!-- Page Content -->
             <main>
                 {{ $slot }}
             </main>
         </div>
-
         @stack('modals')
 
         @livewireScripts

@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
-{
+{   
+    protected $table = 'orders';
     protected $fillable = [
+        'id_user',//ID của người dùng
         'name', // Tên của người đặt hàng
         'email', // Email của người đặt hàng
         'address', // Địa chỉ giao hàng
@@ -18,6 +20,15 @@ class Order extends Model
         'status', // Trạng thái đơn hàng
         // Thêm các thuộc tính fillable khác nếu cần
     ];
+    public function orderUserEmails()
+    {
+        return $this->hasMany(OrderUserEmail::class, 'order_email', 'email');
+    }
+
+    public function users()
+    {
+        return $this->hasManyThrough(User::class, OrderUserEmail::class, 'order_email', 'email', 'email', 'user_email');
+    }
 
     protected $casts = [
         'total_quantity' => 'integer',
@@ -33,7 +44,7 @@ class Order extends Model
 
     // Lấy trạng thái đơn hàng dưới dạng chuỗi
     public function getStatusTextAttribute()
-    {
+    {  
         switch ($this->status) {
             case self::STATUS_PENDING:
                 return 'Pending';

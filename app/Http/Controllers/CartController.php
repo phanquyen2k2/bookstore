@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\Order;
+
+use App\Models\Author;
 use App\Models\OrderDetail;
+use App\Models\Category;
+use App\Models\Book;
 use Session;
 use App\Cart;
+use Auth; 
 
 class CartController extends Controller
 {
@@ -20,6 +25,21 @@ class CartController extends Controller
             $req->session()->put('cart', $newCart);
         }
         return view("Home.cart-item");
+    }
+    public function AddCartDetail(Request $req, $id)
+    {
+        $product = DB::table("books")->where('id', $id)->first();
+        if ($product != null) {
+            $oldCart = Session::has('cart') ? Session::get('cart') : null;
+            $newCart = new Cart($oldCart);
+            $newCart->AddCart($product, $id);
+            $req->session()->put('cart', $newCart);
+            
+            // Add success message to the session
+            $req->session()->flash('success', 'Added product to cart successfully');
+        }
+        // Redirect to the index route
+        return redirect()->route('index')->with('success', 'Added product to cart successfully');
     }
     public function DeleteItemCart(Request $req, $id){
         $oldCart = Session::has('cart') ? Session::get('cart') : null;
@@ -34,7 +54,9 @@ class CartController extends Controller
         return view("Home.cart-item");
     }
     public function ViewList(){
-        return view("Cart.view-cart");
+        $categories = Category::all(); // Get all categories
+        $authors=Author::all();
+        return view("Cart.view-cart",compact("categories","authors"));
     }
     public function DeleteListItemCart(Request $req, $id){
         $oldCart = Session::has('cart') ? Session::get('cart') : null;
@@ -95,11 +117,32 @@ class CartController extends Controller
         ], 400);
     }
     public function Checkout(){
-        
-       return view("Cart.Check-out");
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        $categories = Category::all(); // Get all categories
+        $authors=Author::all();
+        if (Auth::check()) {
+            // Người dùng đã đăng nhập, lấy thông tin của người dùng từ Auth
+            $user = Auth::user();
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email
+            ];
+        } else {
+            // Người dùng chưa đăng nhập, thông tin user rỗng
+            $userData = null;
+        }
+
+        // Lấy thông tin giỏ hàng từ session
+        $cart = Session::has('cart') ? Session::get('cart') : null;
+
+        // Pass thông tin người dùng và giỏ hàng vào view "Cart.Check-out"
+        return view("Cart.Check-out", compact('userData', 'cart',"categories","authors")); 
     }
     public function Thanhyou(){
-        return view("Cart.Thanks");
+        $categories = Category::all(); // Get all categories
+        $authors=Author::all();
+        return view("Cart.Thanks",compact("categories","authors"));
     }
     public function ProcessCheckout(Request $request)
     {
@@ -112,23 +155,27 @@ class CartController extends Controller
             'note' => 'nullable|string|max:500',
             'payment_method' => 'required|string|in:COD,VnPayqr',
         ]);
-    
+
         // Lấy giỏ hàng từ session
         $oldCart = Session::has('cart') ? Session::get('cart') : null;
-    
+
         if (!$oldCart || count($oldCart->products) == 0) {
             return redirect()->back()->with('error', 'Your cart is empty. Cannot proceed to payment.');
         }
-    
+
         // Lưu thông tin checkout vào session
         $request->session()->put('checkout', $validatedData);
-    
-        // Chỉ lưu vào cơ sở dữ liệu nếu phương thức thanh toán không phải VnPayqr
-        if ($validatedData['payment_method'] === 'VnPayqr') {
-            return $this->handleVnPayPayment($request);
-        } else {
+
+        // Lấy id_user nếu đã đăng nhập, nếu chưa thì để trống
+        $id_user = auth()->check() ? auth()->user()->id : null;
+
+        // Bắt đầu giao dịch cơ sở dữ liệu
+        DB::beginTransaction();
+
+        try {
             // Tạo đơn hàng
             $order = Order::create([
+                'id_user' => $id_user,
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
                 'address' => $validatedData['address'],
@@ -137,30 +184,52 @@ class CartController extends Controller
                 'total_quantity' => $oldCart->totalQuanty,
                 'total_price' => $oldCart->totalPrice,
                 'payment_method' => $validatedData['payment_method'],
-                'status' => Order::STATUS_PENDING, // Trạng thái mặc định là chờ xử lý
+                'status' => Order::STATUS_PENDING,
             ]);
-    
-            // Lưu chi tiết đơn hàng
+
+            // Lưu chi tiết đơn hàng và cập nhật số lượng sản phẩm trong kho
             foreach ($oldCart->products as $product) {
-                OrderDetail::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product['productinfor']->id,
-                    'product_name' => $product['productinfor']->title,
-                    'quantity' => $product['quanty'],
-                    'price' => $product['productinfor']->price,
-                ]);
+                // Lấy thông tin sản phẩm
+                $book = Book::find($product['productinfor']->id);
+
+                // Kiểm tra và trừ số lượng sản phẩm
+                if ($book && $book->quanty >= $product['quanty']) {
+                    $book->quanty -= $product['quanty'];
+                    $book->save();
+
+                    // Lưu chi tiết đơn hàng
+                    OrderDetail::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product['productinfor']->id,
+                        'product_name' => $product['productinfor']->title,
+                        'quantity' => $product['quanty'],
+                        'price' => $product['productinfor']->price,
+                    ]);
+                } else {
+                    // Nếu số lượng sản phẩm không đủ, rollback giao dịch và thông báo lỗi
+                    DB::rollBack();
+                    return redirect()->back()->with('error', 'Not enough quantity for ' . $product['productinfor']->title);
+                }
             }
-    
+
             // Xóa giỏ hàng sau khi đặt hàng thành công
             $request->session()->forget('cart');
-    
-            // Chuyển hướng đến trang cảm ơn hoặc trang đơn hàng
+
+            // Commit giao dịch và chuyển hướng đến trang cảm ơn hoặc trang đơn hàng
+            DB::commit();
             return redirect()->route('thankyou');
+        } catch (\Exception $e) {
+            // Nếu xảy ra lỗi, rollback giao dịch và hiển thị thông báo lỗi
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to process your order. Please try again later.');
         }
     }
+
+
+
     
     public function handleVnPayPayment(Request $request)
-{
+    {
     $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     $vnp_Returnurl = route('vnpay.return');
     $vnp_TmnCode = "GEZ7615C"; // Mã website tại VNPAY 
@@ -248,6 +317,7 @@ public function vnpayReturn(Request $request)
             if (!$checkoutData || !$oldCart) {
                 return redirect()->route('checkout')->with('error', 'Session data missing.');
             }
+            
 
             // Tạo đơn hàng
             $order = Order::create([

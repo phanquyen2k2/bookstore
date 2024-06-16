@@ -2,34 +2,274 @@
 
 namespace App\Http\Controllers;
 
+use Auth; // Đảm bảo rằng lớp Auth được import chính xác
 use Illuminate\Http\Request;
-use Auth;
+use DB;
+use App\Models\User;
+use App\Models\Book;
+use App\Models\Order;
+use App\Models\Blog;
+use App\Models\Contact;
+use App\Models\Category;
+use App\Models\Author;
+use App\Models\OrderDetail;
 
 class HomeController extends Controller
 {
-    public function index()
-    {
+    public function index(){
         $user = auth()->user();
-        if ($user) {
-            return redirect()->route('dashboard');
-        } else {
-            return view('dashboard');
+    if ($user) {
+        $role = $user->role;
+        if($role == "2"){
+            return redirect("admin");
+        } elseif($role == "0"){
+            return redirect("user");
+        } elseif($role == "1"){
+            return view("seller");
         }
     }
-
-    public function admin()
-    {
-        return view("Admin.HomeAdmin");
+    else return view('dashboard');
     }
+    public function admin()
+{
+    // Lấy tổng số lượng đơn hàng
+    $totalOrders = Order::count();
+
+    // Lấy tổng số sản phẩm
+    $totalProducts = Book::count();
+
+    // Lấy tổng số người dùng
+    $totalUsers = User::count();
+
+    // Lấy tổng số tiền đã bán được
+    $totalEarnings = Order::sum('total_price');
+
+    // Lấy danh sách các đơn hàng gần đây
+    $orders = Order::orderBy('created_at', 'desc')->take(10)->get();
+
+    // Lấy danh sách người mua nhiều nhất
+    $topBuyers = User::withCount('orders')
+        ->orderBy('orders_count', 'desc')
+        ->take(10)
+        ->get();
+
+    // Lấy danh sách các sản phẩm bán chạy nhất
+    $topSellingProducts = DB::table('order_details')
+        ->join('books', 'order_details.product_id', '=', 'books.id')
+        ->join('authors', 'books.author_id', '=', 'authors.id')
+        ->join('categories', 'books.category_id', '=', 'categories.id')
+        ->select(
+            'books.title as product_name',
+            'authors.name as author_name',
+            'categories.name as category_name',
+            DB::raw('SUM(order_details.quantity) as total_quantity')
+        )
+        ->groupBy('books.id', 'books.title', 'authors.name', 'categories.name')
+        ->orderBy('total_quantity', 'desc')
+        ->take(10)
+        ->get();
+
+    return view('Admin.HomeAdmin', compact('totalOrders', 'totalProducts', 'totalUsers', 'totalEarnings', 'orders', 'topBuyers', 'topSellingProducts'));
+}
+
 
     public function user()
     {
-        return view("user");
+        return redirect("Order-list-user");
     }
 
     public function seller()
     {
-        return view("seller");
+        return view('seller');
+    }
+    // Xử lí hiển thị danh sách người dùng
+    public function CustomersList(){
+        $users = User::withTrashed()->where('role', '!=', 2)->get();
+        return view('Admin.CustomersList', compact('users'));
+    }
+    // Xử lí xóa mềm người dùng
+    public function Destroy($id)
+    {    
+            // Tìm người dùng theo ID
+        $user = User::find($id);
+
+        if ($user) {
+            // Xóa mềm người dùng
+            $user->delete();
+            return redirect()->route('user-list')->with('success', 'User deleted successfully');
+        } else {
+            return redirect()->route('user-list')->with('error', 'User not found');
+        }
+    }
+    // Xử lí khôi phục người dùng
+    public function Restore($id)
+    {  
+            // Tìm người dùng đã bị xóa mềm theo ID
+        $user = User::withTrashed()->find($id);
+
+        if ($user) {
+            // Khôi phục người dùng
+            $user->restore();
+            return redirect()->route('user-list')->with('success', 'User restored successfully');
+        } else {
+            return redirect()->route('user-list')->with('error', 'User not found');
+        }
+    }
+    public function show($id)
+    {
+        // Tìm người dùng theo ID, bao gồm cả người dùng đã bị xóa mềm
+        $user = User::withTrashed()->find($id);
+
+        if ($user) {
+            return view("Admin.UpdateUser", compact('user'));
+        } else {
+            return redirect()->route('user-list')->with('error', 'User not found');
+        }
+    }
+    // Xử lý cập nhật thông tin người dùng
+        /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Request $request, $id)
+    {
+                // Validate dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email|max:255',
+            'role' => 'required|in:0,1',
+        ]);
+
+        // Tìm người dùng hiện có theo ID, bao gồm cả người dùng đã bị xóa mềm
+        $user = User::withTrashed()->find($id);
+
+        if ($user) {
+            // Khôi phục người dùng nếu họ đã bị xóa mềm
+            if ($user->trashed()) {
+                $user->restore();
+            }
+            // Cập nhật chi tiết người dùng
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->role = $request->input('role'); // Lưu giá trị cho trường role
+            $user->save();
+
+            return redirect()->route('user-list')->with('success', 'User updated successfully');
+        } else {
+            return redirect()->route('user-list')->with('error', 'User not found');
+        }
+    }
+    // Xử lý liên hệ
+        /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function submit(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string|max:3000',
+        ]);
+
+        $contact = new Contact();
+        $contact->name = $request->name;
+        $contact->email = $request->email;
+        $contact->message = $request->message;
+        $contact->save();
+
+        // You can add any additional logic here, such as sending an email
+
+        return redirect()->back()->with('success', 'Thank you for contacting us!');
+    }
+    public function formContact(){
+        $categories = Category::all(); // Get all categories
+        $authors=Author::all();
+       
+        return view("Home.contact",compact("categories","authors"));
+    }
+    public function header(){
+        $categories = Category::all(); // Get all categories
+        $authors=Author::all();
+       
+        return view("layouts.headercart",compact("categories","authors"));
+    }
+    public function ListBlog(){
+        // Lấy danh sách các bài blog từ cơ sở dữ liệu
+    $blogs = Blog::orderBy('created_at', 'desc')->get();
+    $categories = Category::all(); // Get all categories
+    $authors=Author::all();
+    // Trả về view 'list-blog' và truyền biến $blogs vào view
+    return view('Blog.list-blog', ['blogs' => $blogs],compact("categories","authors"));
+    }
+    public function AdminBlog(){
+        $blogs = Blog::all();
+        return view("Admin.BlogAdmin",compact('blogs'));
+    }
+    public function updateBlogForm($id)
+    {
+        // Logic để hiển thị form cập nhật blog với id được cung cấp
+        $blogs = Blog::findOrFail($id);
+
+        return view('Blog.update-blog', compact('blogs'));
+    }
+    public function addBlogForm()
+    {
+        // Logic để hiển thị form thêm mới blog
+        return view('Blog.add-blog');
+    }
+    public function updateBlog(Request $request, $id)
+    {
+        // Logic để xử lý cập nhật blog
+        $blog = Blog::findOrFail($id);
+        
+        $blog->title = $request->input('title');
+        $blog->content = $request->input('content');
+        $blog->save();
+
+        return redirect()->route('show.blog')->with('success', 'Blog updated successfully');
+    }
+    public function addBlog(Request $request)
+    {
+        // Logic để xử lý thêm mới blog
+        $blog = new Blog();
+        $blog->title = $request->input('title');
+        $blog->content = $request->input('content');
+        $blog->save();
+
+        return redirect()->route('show.blog')->with('success', 'Blog added successfully');
+    }
+    public function deleteBlog($id)
+    {
+        // Logic để xử lý xóa blog
+        $blog = Blog::findOrFail($id);
+        $blog->delete();
+
+        return redirect()->route('show.blog')->with('success', 'Blog deleted successfully');
+    }
+    public function formContactAdmin()
+    {
+        // Lấy danh sách tất cả các liên hệ
+        $contacts = Contact::all();
+
+        // Trả về view hiển thị danh sách liên hệ
+        return view('Admin.Contact', compact('contacts'));
+    }
+    public function DeleteContact($id)
+    {
+        // Tìm liên hệ theo ID
+        $contact = Contact::findOrFail($id);
+
+        // Xóa liên hệ
+        $contact->delete();
+
+        // Chuyển hướng về trang danh sách liên hệ với thông báo thành công
+        return redirect()->route('admin.contact')->with('success', 'Contact deleted successfully');
     }
 }
-
