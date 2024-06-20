@@ -45,29 +45,29 @@ class HomeController extends Controller
     $totalEarnings = Order::sum('total_price');
 
     // Lấy danh sách các đơn hàng gần đây
-    $orders = Order::orderBy('created_at', 'desc')->take(10)->get();
+    $orders = Order::orderBy('created_at', 'desc')->take(5)->get();
 
-    // Lấy danh sách người mua nhiều nhất
-    $topBuyers = User::withCount('orders')
-        ->orderBy('orders_count', 'desc')
-        ->take(10)
-        ->get();
+    // // Lấy danh sách người mua nhiều nhất
+    $topBuyers = Order::select('name', DB::raw('COUNT(id) as order_count'), DB::raw('SUM(total_quantity) as total_quantity'))
+            ->groupBy('name')
+            ->orderByDesc('total_quantity') // Hoặc 'total_price' nếu muốn dựa trên tổng giá trị
+            ->get();
 
     // Lấy danh sách các sản phẩm bán chạy nhất
     $topSellingProducts = DB::table('order_details')
-        ->join('books', 'order_details.product_id', '=', 'books.id')
-        ->join('authors', 'books.author_id', '=', 'authors.id')
-        ->join('categories', 'books.category_id', '=', 'categories.id')
-        ->select(
-            'books.title as product_name',
-            'authors.name as author_name',
-            'categories.name as category_name',
-            DB::raw('SUM(order_details.quantity) as total_quantity')
-        )
-        ->groupBy('books.id', 'books.title', 'authors.name', 'categories.name')
-        ->orderBy('total_quantity', 'desc')
-        ->take(10)
-        ->get();
+    ->join('books', 'order_details.product_id', '=', 'books.id')
+    ->join('authors', 'books.author_id', '=', 'authors.id')
+    ->join('categories', 'books.category_id', '=', 'categories.id')
+    ->select(
+        'books.title as product_name',
+        'authors.name as author_name',
+        'categories.name as category_name',
+        DB::raw('SUM(order_details.quantity) as total_quantity')
+    )
+    ->groupBy('books.id', 'books.title', 'authors.name', 'categories.name')
+    ->orderBy('total_quantity', 'desc')
+    ->take(10)
+    ->get();
 
     return view('Admin.HomeAdmin', compact('totalOrders', 'totalProducts', 'totalUsers', 'totalEarnings', 'orders', 'topBuyers', 'topSellingProducts'));
 }
@@ -189,69 +189,11 @@ class HomeController extends Controller
         return redirect()->back()->with('success', 'Thank you for contacting us!');
     }
     public function formContact(){
-        $categories = Category::all(); // Get all categories
-        $authors=Author::all();
        
-        return view("Home.contact",compact("categories","authors"));
+        return view("Home.contact");
     }
-    public function header(){
-        $categories = Category::all(); // Get all categories
-        $authors=Author::all();
-       
-        return view("layouts.headercart",compact("categories","authors"));
-    }
-    public function ListBlog(){
-        // Lấy danh sách các bài blog từ cơ sở dữ liệu
-    $blogs = Blog::orderBy('created_at', 'desc')->get();
-    $categories = Category::all(); // Get all categories
-    $authors=Author::all();
-    // Trả về view 'list-blog' và truyền biến $blogs vào view
-    return view('Blog.list-blog', ['blogs' => $blogs],compact("categories","authors"));
-    }
-    public function AdminBlog(){
-        $blogs = Blog::all();
-        return view("Admin.BlogAdmin",compact('blogs'));
-    }
-    public function updateBlogForm($id)
-    {
-        // Logic để hiển thị form cập nhật blog với id được cung cấp
-        $blogs = Blog::findOrFail($id);
-
-        return view('Blog.update-blog', compact('blogs'));
-    }
-    public function addBlogForm()
-    {
-        // Logic để hiển thị form thêm mới blog
-        return view('Blog.add-blog');
-    }
-    public function updateBlog(Request $request, $id)
-    {
-        // Logic để xử lý cập nhật blog
-        $blog = Blog::findOrFail($id);
-        
-        $blog->title = $request->input('title');
-        $blog->content = $request->input('content');
-        $blog->save();
-
-        return redirect()->route('show.blog')->with('success', 'Blog updated successfully');
-    }
-    public function addBlog(Request $request)
-    {
-        // Logic để xử lý thêm mới blog
-        $blog = new Blog();
-        $blog->title = $request->input('title');
-        $blog->content = $request->input('content');
-        $blog->save();
-
-        return redirect()->route('show.blog')->with('success', 'Blog added successfully');
-    }
-    public function deleteBlog($id)
-    {
-        // Logic để xử lý xóa blog
-        $blog = Blog::findOrFail($id);
-        $blog->delete();
-
-        return redirect()->route('show.blog')->with('success', 'Blog deleted successfully');
+    public function header(){     
+        return view("layouts.headercart");
     }
     public function formContactAdmin()
     {

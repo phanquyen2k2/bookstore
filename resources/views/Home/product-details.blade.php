@@ -20,11 +20,11 @@
                 <div class="col-xs-12">
                     <div class="bradcaump__inner text-center">
                         <nav class="bradcaump-inner">
-                            <a class="breadcrumb-item" href="{{ route('index') }}" style="font-weight: bold; font-size: 18px;">Home</a>
+                            <a class="breadcrumb-item" href="{{ route('index') }}" style="font-weight: bold; font-size: 18px;"> Home </a>
                             <span class="brd-separetor"><i class="zmdi zmdi-chevron-right"></i></span>
-                            <a class="breadcrumb-item" href="{{ route('list.book') }}" style="font-weight: bold; font-size: 18px;">Books</a>
+                            <a class="breadcrumb-item" href="{{ route('list.book') }}" style="font-weight: bold; font-size: 18px;"> Books </a>
                             <span class="brd-separetor"><i class="zmdi zmdi-chevron-right"></i></span>
-                            <span class="breadcrumb-item active" style="font-weight: bold; font-size: 18px;">{{ $books->title }}</span>
+                            <span class="breadcrumb-item active" style="font-weight: bold; font-size: 18px;"> {{ $books->title }} </span>
                         </nav>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
 <!-- End Bradcaump area -->
 
 <!-- Start Product Details Area -->
-<section class="htc__product__details bg__white ptb--20">
+<section class="htc__product__details bg__white ptb--20" style="margin-top:50px">
     <!-- Start Product Details Top -->
     <div class="htc__product__details__top">
         <div class="container">
@@ -54,27 +54,41 @@
                     </div>
                 </div>
                 <div class="col-md-7 col-lg-7 col-sm-12 col-xs-12 smt-20 xmt-20">
-                    <div class="ht__product__dtl">
-                        <h2 style="font-size: 28px; font-weight: bold;">{{ $books->title }}</h2>
-                        <h6 style="margin-bottom: 10px; font-weight: bold;">Author: <span><a href="#">{{ $books->author->name }}</a></span></h6>
+                    <div class="ht__product__dtl" >
+                        <h2 style="font-size: 28px; ">{{ $books->title }}</h2>
+                        <h6 style="margin-bottom: 10px; margin-top:10px">Author: <span><a href="{{ route("author.products",$books->author->name) }}">{{ $books->author->name }}</a></span></h6>
                         <ul class="pro__prize" style="list-style: none; padding: 0;">
-                            <li style="font-size: 24px; color: #e74c3c; font-weight: bold;">Price: {{number_format($books->price) }}đ</li>
+                            <li style="font-size: 24px;font-weight: bold; ">Price: {{number_format($books->price) }}đ</li>
+                            <li> + Free Shipping</li>
                         </ul>
                         <div class="ht__pro__desc">
-                            <div class="sin__desc" style="margin-bottom: 10px;">
-                                <p><span style="font-weight: bold;">Availability:</span> Out of stock</p>
+                            <div class="sin__desc" style="margin-bottom: 10px;margin-top:10px">
+                                @if($books->quanty)
+                                <p><span style="font-weight: bold;">Availability:</span> {{ $books->quanty }}</p>
+                                @else
+                                <p><span style="font-weight: bold;">Availability:</span>Out of stock</p>
+                                @endif
                             </div>
-                            <div class="sin__desc align--left" style="margin-bottom: 10px;">
+                            <div class="sin__desc" style="margin-bottom: 10px;margin-top:10px">
                                 <p><span style="font-weight: bold;">Categories:</span></p>
                                 <ul class="pro__cat__list" style="list-style: none; padding: 0;">
-                                    <li><a href="#">{{ $books->category->name }}</a></li>
+                                    <li><a href="{{ route("category.products",$books->category->name) }}">{{ $books->category->name }}</a></li>
                                 </ul>
                             </div>
-                            <div class="pt-5 text-center">
-                                <a class="btn btn-dark btn-xl btn-update" href="{{ route('addcart.detail', $books->id) }}" data-mdb-ripple-color="red" style="font-size: 18px;">
-                                    <i class='bx bx-cart icon' style="font-size: 30px;"></i> Add to Cart
-                                </a>
-                            </div>
+                          
+                              
+                            
+                                <div class="fr__hover__info">
+                                    <ul class="product__action">
+                                        @if($books->quanty == 0)
+                                        <li><a href="javascript:;"> Out of Stock</a></li>
+                                        @else
+                                        <li><a href="{{ route('addcart.detail', $books->id) }}"><i class="icon-handbag icons" style="font-size: 35px"></i> 
+                                        </a></li>
+                                        @endif
+                                    </ul>
+                                </div>
+                          
                         </div>
                     </div>
                 </div>

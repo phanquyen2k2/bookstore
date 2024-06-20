@@ -220,8 +220,7 @@
                     <tr>
                         <td>{{ $book->id }}</td>
                         <td>{{ $book->title }}</td>
-                      
-                        <td>${{ number_format($book->price) }}</td>
+                        <td>{{ number_format($book->price) }}đ</td>
                         <td><img src="{{ $book->image_url }}" alt="Book Image" style="width: 120px; height:100px"></td>
                         <td>{{ $book->author->name }}</td> <!-- Assuming 'name' is the column containing author names -->
                         <td>{{ $book->category->name }}</td> <!-- Assuming 'name' is the column containing category names -->

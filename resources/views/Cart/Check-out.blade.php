@@ -51,7 +51,7 @@
                 <div class="mb-3">
                     <label for="username">Username</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="username" name="name" placeholder="Username1" required="">
+                        <input type="text" class="form-control" id="username" name="name" placeholder="Username" required="">
                         <div class="invalid-feedback" style="width: 100%;"> Your username is required. </div>
                     </div>
                 </div>
@@ -82,7 +82,7 @@
                         <select class="custom-select d-block w-100" id="pay" name="payment_method" required="">
                             <option value="">Choose...</option>
                             <option value="COD">COD</option>
-                            <option value="VnPayqr">VnPayqr</option>
+                            <option value="VnPayqr">VnPay</option>
                         </select>
                     </div>
                 </div>

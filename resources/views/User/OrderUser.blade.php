@@ -254,7 +254,7 @@
                         <td>{{ $order->name }}</td>
                         <td>{{ $order->email }}</td>
                         <td>{{ $order->total_quantity }}</td>
-                        <td>${{ number_format($order->total_price) }}</td>
+                        <td>{{ number_format($order->total_price) }}đ</td>
                         <td>{{ $order->payment_method }}</td>
                         <td>{{ $order->status }}</td>
                         <td><a href="/orders/cancel-form/{{ $order->id }}"><i class='bx bx-message-alt-x icon'></i></a></td>

@@ -14,22 +14,33 @@
             justify-content: space-between;
             text-align: center;
         }
+    
         .ht__cat__thumb img {
             width: 100%;
             height: 300px;
             object-fit: cover;
         }
+    
         .fr__product__inner {
             padding: 15px 0;
         }
+    
         .product__list > div {
             margin-bottom: 30px;
         }
-        .category-name {
-            margin-top: 10px;
-            font-size: 1.5em; /* Điều chỉnh kích thước font tùy ý */
+    
+        .fr__product__inner h4 {
+            margin: 0;
+            padding: 0;
+            font-size: 1.2em;
+            line-height: 1.4em;
+            height: 2.8em; /* Set height to fit 2 lines of text */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Number of lines to show */
+            -webkit-box-orient: vertical;
         }
-
     </style>
 
 </head>

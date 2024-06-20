@@ -1,4 +1,8 @@
+@extends('home.app')
 
+@section('title', 'Author')
+
+@section('content')
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
@@ -58,3 +62,4 @@
         
     </x-authentication-card>
 </x-guest-layout>
+@endsection

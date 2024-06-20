@@ -20,7 +20,6 @@
         <x-slot name="header" class="header">
             <x-navadmin/>
             @yield('content')
-            
         </x-slot>
     </x-app-layout>
 </body>

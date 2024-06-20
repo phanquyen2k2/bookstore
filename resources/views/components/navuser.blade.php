@@ -20,6 +20,19 @@
     </style>
 </head>
 <body>
-   
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ route("orderlist.user") }}">HOME USER</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+               
+                
+            </div>
+            <a class="nav-link" href="{{ route("index") }}">Home Page</i></a>
+        </div>
+    </nav>
 </body>
 </html>

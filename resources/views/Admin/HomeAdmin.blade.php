@@ -175,7 +175,7 @@ body {
 }
 
 .cardHeader {
-  margin-bottom: 0;
+  margin-bottom: 30px;
 }
 
 .cardHeader h2 {
@@ -394,66 +394,6 @@ body {
     left: initial;
   }
 }
-/* top selling */
-/* Define new styles for the top selling products section */
-.topSellingProducts {
-  grid-column: 1 / -1; /* Span across all columns in the grid */
-}
-
-.topSellingProducts .recentOrders {
-  min-height: 500px;
-  background: var(--white);
-  padding: 20px;
-  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
-}
-
-.topSellingProducts .cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.topSellingProducts .cardHeader h2 {
-  font-weight: 600;
-  color: var(--blue);
-  margin: 0;
-  padding: 0;
-}
-
-.topSellingProducts table {
-  width: 1120px; /* Adjust width to fit the container */
-  border-collapse: collapse;
-}
-
-.topSellingProducts table thead td {
-  font-weight: 600;
-  text-align: center; /* Center align text in header */
-}
-
-.topSellingProducts table tr {
-  color: var(--black1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.topSellingProducts table tr:last-child {
-  border-bottom: none;
-}
-
-.topSellingProducts table tr td {
-  padding: 15px 10px; /* Adjust padding for better spacing */
-  text-align: left; /* Center align all table cells */
-  padding-right: 100px;
-}
-
-.topSellingProducts table tr td:nth-child(2) {
-  text-align: center; /* Align content in the Author column to the left */
-}
-
-.topSellingProducts table tr td:last-child {
-  text-align: center; /* Align content in the last column to the left */
-  padding-right: 100px; /* Add right padding to create space */
-}
 
     </style>
 </head>
@@ -548,7 +488,7 @@ body {
                         </td>
                         <td>
                             <h4>{{ $buyer->name }}</h4>
-                            <p>Total Orders: {{ $buyer->orders_count }}</p>
+                            <p>Total Orders: {{ $buyer->order_count  }}</p>
                         </td>
                     </tr>
                 @empty
@@ -558,39 +498,33 @@ body {
                 @endforelse
             </table>
         </div>
-
-      <!-- ================ Top Selling Products ================ -->
-<div class="details topSellingProducts">
-  <div class="recentOrders">
-      <div class="cardHeader">
-        <h2>Top Selling Products</h2>
-      </div>
-      <table>
-          <thead>
-              <tr>
-                  <th>Product Name</th>
-                  <th>Author</th>
-                  <th>Category</th>
-                  <th>Total Quantity Sold</th>
-              </tr>
-          </thead>
-          <tbody>
-              @forelse($topSellingProducts as $product)
-                  <tr>
-                      <td>{{ $product->product_name }}</td>
-                      <td>{{ $product->author_name }}</td>
-                      <td>{{ $product->category_name }}</td>
-                      <td>{{ $product->total_quantity }}</td>
-                  </tr>
-              @empty
-                  <tr>
-                      <td colspan="4" class="text-center">No top selling products found.</td>
-                  </tr>
-              @endforelse
-          </tbody>
-      </table>
-  </div>
-</div>
+        <!-- Top Selling Products section -->
+        <div class="details">
+          <div class="recentOrders">
+              <div class="cardHeader">
+                  <h2>Top Selling Products</h2>
+                  <a href="{{ route("orderlist") }}" class="btn">View All</a>
+              </div>
+              <table style="margin-top:1px ">
+                  <thead>
+                      <tr>
+                        <td>Name</td>
+                        <td>Total Sold</td>
+                      </tr>
+                  </thead>
+    
+                  <tbody>
+                    @foreach($topSellingProducts as $sell)
+                    <tr>
+                        <td>{{ $sell->product_name }}</td>
+                        <td>{{ $sell->total_quantity }}</td>
+                    </tr>
+                @endforeach
+                  </tbody>
+              </table>
+          </div>
+        {{--  --}}
+   
 
 
 

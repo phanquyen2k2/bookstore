@@ -32,7 +32,6 @@
                     <a class="nav-link active" aria-current="page" href="{{ route("user-list") }}">CUSTOMERS</a>
                     <a class="nav-link" href="{{ route("product-list") }}">PRODUCTS</a>
                     <a class="nav-link" href="{{ route("orderlist") }}">LIST OF ORDERS</a>
-                    <a class="nav-link" href="{{ route("show.blog") }}">BLOG</a>
                     <a class="nav-link" href="{{ route("admin.contact") }}">CONTACT</a>
                 </div>
                 

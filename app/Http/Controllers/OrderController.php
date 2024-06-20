@@ -164,13 +164,13 @@ class OrderController extends Controller
         // Cập nhật chi tiết đơn hàng
         $order->update($validatedData);
     
-        return redirect()->route('orderlist.user')->with('success', 'Order updated successfully');
+        return redirect()->back()->with('success', 'Order updated successfully');
     }
     public function formCancel($userId){
         $order = Order::find($userId);
         
         if (!$order) {
-            return redirect()->route('orderlist.user')->with('error', 'Order not found.');
+            return redirect()->back()->with('error', 'Order not found.');
         }
         if ($order->status == 'paid') {
             return redirect()->route('contact')->with('message', 'Please contact admin to cancel the order.');
@@ -185,8 +185,27 @@ class OrderController extends Controller
             'email' => $order->email,
         ]);
     }
+    // form cancel admin
+    public function formCancelAdmin($userId){
+        $order = Order::find($userId);
+        
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+        
+        if (!in_array($order->status, ['pending', 'paid'])) {
+            return redirect()->route('orderlist')->with('error', 'This order cannot be edited at the moment.');
+        }
+        return view('Admin.Cancel_Order', [
+            'id' => $userId,
+            'name' => $order->name,
+            'email' => $order->email,
+        ]);
+    }
+    
     // Xử lí hủy đơn hàng
     public function cancelOrder(Request $request, $orderId){
+          // Lấy đơn hàng theo ID
         // Lấy đơn hàng theo ID
         $order = Order::find($orderId);
 
@@ -194,30 +213,70 @@ class OrderController extends Controller
             return redirect()->route('orderlist.user')->with('error', 'Order not found.');
         }
 
-        // Kiểm tra trạng thái đơn hàng
-        if ($order->status !== Order::STATUS_PENDING) {
-            return redirect()->route('orderlist.user')->with('error', 'Only pending orders can be cancelled.');
-        }
-
         // Validate dữ liệu lý do hủy đơn hàng
         $validatedData = $request->validate([
             'cancel_reason' => 'required|string|max:500',
         ]);
 
+        // Tìm thông tin hủy trước đó trong bảng cancel_orders
+        $cancelOrder = CancelOrder::where('order_id', $orderId)->first();
+
+        // Nếu đã có thông tin hủy trước đó, cập nhật lại lý do hủy
+        if ($cancelOrder) {
+            $cancelOrder->cancel_reason = $validatedData['cancel_reason'];
+            $cancelOrder->save();
+        } else {
+            // Nếu chưa có thông tin hủy, tạo mới thông tin hủy
+            CancelOrder::create([
+                'order_id' => $order->id,
+                'user_id' => $order->id_user,
+                'cancel_reason' => $validatedData['cancel_reason'],
+            ]);
+        }
+
         // Cập nhật trạng thái đơn hàng thành "cancelled"
         $order->status = Order::STATUS_CANCELLED;
         $order->save();
 
-        // Lưu thông tin hủy vào bảng cancel_orders
-        CancelOrder::create([
-            'order_id' => $order->id,
-            'user_id' => $order->id_user,
-            'cancel_reason' => $validatedData['cancel_reason'],
-        ]);
 
         return redirect()->route('orderlist.user')->with('success', 'Order has been cancelled.');
+    }
+    public function cancelOrderAdmin(Request $request, $orderId){
+         // Lấy đơn hàng theo ID
+         $order = Order::find($orderId);
+
+         if (!$order) {
+             return redirect()->route('orderlist.user')->with('error', 'Order not found.');
+         }
+ 
+         // Validate dữ liệu lý do hủy đơn hàng
+         $validatedData = $request->validate([
+             'cancel_reason' => 'required|string|max:500',
+         ]);
+ 
+         // Tìm thông tin hủy trước đó trong bảng cancel_orders
+         $cancelOrder = CancelOrder::where('order_id', $orderId)->first();
+ 
+         // Nếu đã có thông tin hủy trước đó, cập nhật lại lý do hủy
+         if ($cancelOrder) {
+             $cancelOrder->cancel_reason = $validatedData['cancel_reason'];
+             $cancelOrder->save();
+         } else {
+             // Nếu chưa có thông tin hủy, tạo mới thông tin hủy
+             CancelOrder::create([
+                 'order_id' => $order->id,
+                 'user_id' => $order->id_user,
+                 'cancel_reason' => $validatedData['cancel_reason'],
+             ]);
+         }
+ 
+         // Cập nhật trạng thái đơn hàng thành "cancelled"
+         $order->status = Order::STATUS_CANCELLED;
+         $order->save();
+ 
+         return redirect()->route('orderlist')->with('success', 'Order has been cancelled.');
+     }
     }
     
     
     
-}

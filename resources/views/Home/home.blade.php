@@ -11,18 +11,35 @@
         justify-content: space-between;
         text-align: center;
     }
+
     .ht__cat__thumb img {
         width: 100%;
         height: 300px;
         object-fit: cover;
     }
+
     .fr__product__inner {
         padding: 15px 0;
     }
+
     .product__list > div {
         margin-bottom: 30px;
     }
+
+    .fr__product__inner h4 {
+        margin: 0;
+        padding: 0;
+        font-size: 1.2em;
+        line-height: 1.4em;
+        height: 2.8em; /* Set height to fit 2 lines of text */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Number of lines to show */
+        -webkit-box-orient: vertical;
+    }
 </style>
+
 <!-- Start Slider Area -->
 <div class="slider__container slider--one bg__cat--3" style="height: 500px; display: flex; align-items: center; justify-content: center;margin-top:20px">
     <div class="slide__container slider__activation__wrap owl-carousel">
@@ -120,10 +137,8 @@
     </div>
 </section>
 <!-- End Category Area -->
-
-
     <!-- Phần Sản Phẩm Bán Chạy Nhất -->
-    <section class="htc__category__area ptb--100">
+    <section class="htc__category__area ptb--10">
         <div class="container">
             <div class="row">
                 <div class="col-xs-12">

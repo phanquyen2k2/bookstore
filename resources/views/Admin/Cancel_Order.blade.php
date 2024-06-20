@@ -1,4 +1,4 @@
-@extends('Admin.LayoutAdmin');
+@extends('User.LayoutUser');
 @section('content')
 <!DOCTYPE html>
 <html lang="en" title="Coding design">
@@ -203,85 +203,53 @@
     </style>
 </head>
 <body>
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">  
-                <section class="vh-400" style="background-color: #ffff;">
-                    <div class="container py-5 h-100 d-flex justify-content-center align-items-center">
-                        <div class="row d-flex justify-content-center align-items-center w-100">
-                            <div class="col col-xl-12">
-                                <div class="card" style="border-radius: 1rem;">
-                                    <div class="row g-0 justify-content-center">
-                                        <div class="col-md-6 col-lg-7 d-flex align-items-center">
-                                            <div class="card-body p-4 p-lg-5 text-black">
-                                                <a href="{{ route("product-list")}}" class="btn-close" aria-label="Close" ></a>
-                                                <form action="{{ route('products.create') }}" method="post">
-                                                    @csrf
-                                                    <div class="modal-header justify-content-center">
-                                                        <img src="https://cdn-icons-png.flaticon.com/512/3531/3531989.png" alt="Logo">
-                                                        <span class="h2 fw-bold mb-0">Add Product</span>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Title</h5>
-                                                        <input type="text" name="title" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Description</h5>
-                                                        <textarea name="description" class="form-control form-control-lg" style="height: 300px; text-align: left; padding-top: 10px;" required></textarea>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Price</h5>
-                                                        <input type="text" name="price" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Quanty</h5>
-                                                        <input type="text" name="quanty" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Author</h5>
-                                                        <input type="text" name="author" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>Category</h5>
-                                                        <input type="text" name="category" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <div class="form-outline mb-4">
-                                                        <h5>URL Image</h5>
-                                                        <input type="text" name="image" class="form-control form-control-lg" required>
-                                                    </div>
-                                                    <!-- Thêm dòng hiển thị validate -->
-                                                    @if ($errors->any())
-                                                        <div class="alert alert-danger">
-                                                            <ul>
-                                                                @foreach ($errors->all() as $error)
-                                                                    <li>{{ $error }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    @endif
-                                                    <div class="pt-1 mb-4">
-                                                        <input type="submit" value="Confirm more products" name="addsp" class="btn btn-dark btn-lg btn-block w-100" >
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h2 class="mb-4">Cancel Order Admin</h2>
+
+                                <div class="mb-3">
+                                    <label for="order_id" class="form-label">Order ID</label>
+                                    <input type="text" class="form-control" id="order_id" value="{{$id}}" disabled>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="customer_name" class="form-label">Customer Name</label>
+                                    <input type="text" class="form-control" id="customer_name" value="{{ $name }}" disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="customer_email" class="form-label">Customer Email</label>
+                                    <input type="email" class="form-control" id="customer_email" value="{{ $email }}" disabled>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <form action="{{ route('cancel.orderadmin', $id) }}" method="POST">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="cancel_reason" class="form-label">Reason for Cancellation</label>
+                                        <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="4" required></textarea>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-danger btn-lg">Cancel Order</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
     </div>
-    </main>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 @endsection
-
-
-
-
-    
-
-
-

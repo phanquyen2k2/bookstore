@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\Order;
-
 use App\Models\Author;
 use App\Models\OrderDetail;
 use App\Models\Category;
@@ -54,9 +53,8 @@ class CartController extends Controller
         return view("Home.cart-item");
     }
     public function ViewList(){
-        $categories = Category::all(); // Get all categories
-        $authors=Author::all();
-        return view("Cart.view-cart",compact("categories","authors"));
+
+        return view("Cart.view-cart");
     }
     public function DeleteListItemCart(Request $req, $id){
         $oldCart = Session::has('cart') ? Session::get('cart') : null;
@@ -118,8 +116,7 @@ class CartController extends Controller
     }
     public function Checkout(){
         // Kiểm tra xem người dùng đã đăng nhập hay chưa
-        $categories = Category::all(); // Get all categories
-        $authors=Author::all();
+      
         if (Auth::check()) {
             // Người dùng đã đăng nhập, lấy thông tin của người dùng từ Auth
             $user = Auth::user();
@@ -137,41 +134,42 @@ class CartController extends Controller
         $cart = Session::has('cart') ? Session::get('cart') : null;
 
         // Pass thông tin người dùng và giỏ hàng vào view "Cart.Check-out"
-        return view("Cart.Check-out", compact('userData', 'cart',"categories","authors")); 
+        return view("Cart.Check-out", compact('userData', 'cart')); 
     }
     public function Thanhyou(){
-        $categories = Category::all(); // Get all categories
-        $authors=Author::all();
-        return view("Cart.Thanks",compact("categories","authors"));
+        
+        return view("Cart.Thanks");
     }
     public function ProcessCheckout(Request $request)
-    {
-        // Kiểm tra dữ liệu đầu vào
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:15',
-            'note' => 'nullable|string|max:500',
-            'payment_method' => 'required|string|in:COD,VnPayqr',
-        ]);
+{
+    // Kiểm tra dữ liệu đầu vào
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'address' => 'required|string|max:255',
+        'phone' => 'nullable|string|max:15',
+        'note' => 'nullable|string|max:500',
+        'payment_method' => 'required|string|in:COD,VnPayqr',
+    ]);
 
-        // Lấy giỏ hàng từ session
-        $oldCart = Session::has('cart') ? Session::get('cart') : null;
+    // Lấy giỏ hàng từ session
+    $oldCart = Session::has('cart') ? Session::get('cart') : null;
 
-        if (!$oldCart || count($oldCart->products) == 0) {
-            return redirect()->back()->with('error', 'Your cart is empty. Cannot proceed to payment.');
-        }
+    if (!$oldCart || count($oldCart->products) == 0) {
+        return redirect()->back()->with('error', 'Your cart is empty. Cannot proceed to payment.');
+    }
 
-        // Lưu thông tin checkout vào session
-        $request->session()->put('checkout', $validatedData);
+    // Lưu thông tin checkout vào session
+    $request->session()->put('checkout', $validatedData);
 
-        // Lấy id_user nếu đã đăng nhập, nếu chưa thì để trống
-        $id_user = auth()->check() ? auth()->user()->id : null;
+    // Lấy id_user nếu đã đăng nhập, nếu chưa thì để trống
+    $id_user = auth()->check() ? auth()->user()->id : null;
 
+    if ($validatedData['payment_method'] === 'VnPayqr') {
+        return $this->handleVnPayPayment($request);
+    } else {
         // Bắt đầu giao dịch cơ sở dữ liệu
         DB::beginTransaction();
-
         try {
             // Tạo đơn hàng
             $order = Order::create([
@@ -224,12 +222,10 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Failed to process your order. Please try again later.');
         }
     }
+}
 
-
-
-    
-    public function handleVnPayPayment(Request $request)
-    {
+public function handleVnPayPayment(Request $request)
+{
     $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     $vnp_Returnurl = route('vnpay.return');
     $vnp_TmnCode = "GEZ7615C"; // Mã website tại VNPAY 
@@ -284,6 +280,7 @@ class CartController extends Controller
 
     return redirect($vnp_Url);
 }
+
 public function vnpayReturn(Request $request)
 {
     $inputData = $request->all();
@@ -300,7 +297,7 @@ public function vnpayReturn(Request $request)
     ksort($inputData);
     $hashData = "";
     foreach ($inputData as $key => $value) {
-        $hashData .= '&' . urlencode($key) . "=" . urlencode($value);
+        $hashData .= urlencode($key) . "=" . urlencode($value) . '&';
     }
     $hashData = trim($hashData, '&');
     $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
@@ -310,17 +307,19 @@ public function vnpayReturn(Request $request)
         if ($inputData['vnp_ResponseCode'] == '00') {
             // Lấy giỏ hàng từ session
             $oldCart = Session::has('cart') ? Session::get('cart') : null;
-             
+
             // Lấy thông tin checkout từ session
             $checkoutData = $request->session()->get('checkout');
 
             if (!$checkoutData || !$oldCart) {
                 return redirect()->route('checkout')->with('error', 'Session data missing.');
             }
-            
+
+            $id_user = auth()->check() ? auth()->user()->id : null;
 
             // Tạo đơn hàng
             $order = Order::create([
+                'id_user' => $id_user,
                 'name' => $checkoutData['name'],
                 'email' => $checkoutData['email'],
                 'address' => $checkoutData['address'],
@@ -328,9 +327,11 @@ public function vnpayReturn(Request $request)
                 'note' => $checkoutData['note'],
                 'total_quantity' => $oldCart->totalQuanty,
                 'total_price' => $oldCart->totalPrice,
-                'payment_method' => 'VnPayqr',
-                'status' => Order::STATUS_PAID, // Đã thanh toán
+                'payment_method' => $checkoutData['payment_method'],
+                'status' => Order::STATUS_PENDING,
             ]);
+
+            // Lưu chi tiết đơn hàng
             foreach ($oldCart->products as $product) {
                 OrderDetail::create([
                     'order_id' => $order->id,
@@ -340,14 +341,14 @@ public function vnpayReturn(Request $request)
                     'price' => $product['productinfor']->price,
                 ]);
             }
-            
+
             // Xóa giỏ hàng và thông tin checkout sau khi đặt hàng thành công
-            // $request->session()->forget('cart');
-            // $request->session()->forget('checkout');
+            $request->session()->forget('cart');
+            $request->session()->forget('checkout');
 
             return redirect()->route('thankyou');
         } else {
-            return redirect()->route('checkout')->with('error', 'Payment failed.');
+            return redirect()->route('checkout')->with('error', 'Payment failed. Please try again.');
         }
     } else {
         return redirect()->route('checkout')->with('error', 'Invalid signature.');

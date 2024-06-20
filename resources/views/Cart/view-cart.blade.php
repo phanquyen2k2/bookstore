@@ -61,14 +61,13 @@
                                     <!-- Sample Item End -->
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="pt-5">
-                                            <h6 class="mb-0"><a href="{{ url(" /") }}" class="text-body"><i
+                                            <h6 class="mb-0"><a href="{{ url("/") }}" class="text-body"><i
                                                         class="fas fa-long-arrow-alt-left me-2"></i>Back to shop</a>
                                             </h6>
                                         </div>
                                         <div class="pt-5">
-                                            <h6 class="mb-0"><a class="btn btn-dark btn-lg btn-update" href="#"
-                                                    data-mdb-ripple-color="red">Update Cart</a></h6>
-                                        </div>
+                                            <h6 class="mb-0"><a class="btn btn-dark btn-lg btn-update" href="" data-mdb-ripple-color="red">Update Cart</a></h6>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +236,6 @@ function updateCart() {
             $("input[name='quantity']").each(function () {
                 var productId = $(this).data("id");
                 var newQuantity = $(this).val();
-
                 items.push({
                     key: productId,
                     value: newQuantity
@@ -257,8 +255,7 @@ function updateCart() {
                         // Cập nhật tổng số lượng và tổng giá trị
                         $(".summary-heading").text("Summary");
                         $(".shopping-cart-item").eq(0).find("h5").eq(1).text(response.totalQuanty);
-                        $(".shopping-cart-item").eq(1).find("h5").eq(1).text("$" + response.totalPrice);
-
+                        $(".shopping-cart-item").eq(1).find("h5").eq(1).text(response.totalPrice.toLocaleString('vi-VN') + "đ");
                         // Cập nhật giá và số lượng cho từng sản phẩm (nếu cần)
                         $("input[name='quantity']").each(function () {
                             var productId = $(this).data("id");

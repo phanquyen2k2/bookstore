@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Redirect;
 */
 // Xử lí Home,đăng nhập
 route::get("/",[BookController::class,"index"])->name("index");
-route::get("/book-detail/{id}",[BookController::class,"BookDeital"])->name("book.detail");
+route::get("/book-detail/{id}",[BookController::class,"BookDetail"])->name("book.detail");
 route::get("/home",[HomeController::class,"index"])->middleware('verified');
 Route::middleware([
     'auth:sanctum',
@@ -34,6 +34,10 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+// 
+
+Route::get('/infor-details/{orderId}', [OrderController::class, 'InforDetails'])->name('infor.details');
 // Xử lí các chức năng header
 route::get("/list-book",[BookController::class,"ListBook"])->name("list.book");
 Route::get('/category/{category}', [BookController::class, 'productsCategory'])->name('category.products');
@@ -81,7 +85,8 @@ Route::middleware(['role:2', 'checkUserNotDeleted',])->group(function () {
     
     // Route các chức năng quản lí đơn hàng
     Route::get('/Order-list', [OrderController::class, 'OrderList'])->name("orderlist"); // Hiển thị danh sách đơn hàng
-    Route::get('/order-details/{orderId}', [OrderController::class, 'OrderDetails'])->name('order.details');//Hiển thị chi tiết đơn hàng
+    route::get('admin/orders/cancel-form/{orderId}',[OrderController::class,'formCancelAdmin'])->name('cancel.formadmin');//Form Hủy đơn hàng 
+    route::post('admin/orders/cancel-order/{id}',[OrderController::class,'cancelOrderAdmin'])->name('cancel.orderadmin');//Hủy đơn hàng 
     Route::get('/orders/edit-order/{orderId}', [OrderController::class, 'show'])->name('form-order-update');//Form cập nhập đơn hàng
     Route::post('/orders/edit-order/{orderId}', [OrderController::class, 'edit'])->name('order.update');//Form cập nhập đơn hàng
     
@@ -104,22 +109,25 @@ Route::middleware(['role:2', 'checkUserNotDeleted',])->group(function () {
     route::get("admin/contact",[HomeController::class, 'formContactAdmin'])->name("admin.contact");
     route::get("/contact/delete/{id}",[HomeController::class, 'DeleteContact'])->name("delete.contact");
     
+    // các chức năng của admin và seller
+    Route::middleware(['role:1,2', 'checkUserNotDeleted',])->group(function () {
+        Route::get('/seller', [HomeController::class, 'seller'])->name('seller');
+    });
+    
 });
 
 Route::middleware(['role:0', 'checkUserNotDeleted', ])->group(function () {
     Route::get('/user', [HomeController::class, 'user'])->name('user');
-    route::get('/orders/cancel-form/{orderId}',[OrderController::class,'formCancel'])->name('cancel.form');//Hủy đơn hàng 
+    route::get('/orders/cancel-form/{orderId}',[OrderController::class,'formCancel'])->name('cancel.form');//Form Hủy đơn hàng 
     route::post('/orders/cancel-order/{id}',[OrderController::class,'cancelOrder'])->name('cancel.order');//Hủy đơn hàng 
     Route::get('/Order-list-user', [OrderController::class, 'OrderListUser'])->name("orderlist.user"); // Hiển thị danh sách đơn hàng của user
-   
-    // Route::get('/infor-details/{orderId}', [OrderController::class, 'InforDetails'])->name('infor.details');//Hiển thị chi tiết thông tin đơn hàng
+    
+    //Hiển thị chi tiết thông tin đơn hàng
     Route::get('/orders/edit-user/{orderId}', [OrderController::class, 'showuser'])->name('form-user-update');//Form cập nhập đơn hàng của user
     Route::post('/orders/edit-user/{orderId}', [OrderController::class, 'edituser'])->name('order-user.update');//Form cập nhập đơn hàng
+
 }); 
 
-Route::middleware(['role:1', 'checkUserNotDeleted',])->group(function () {
-    Route::get('/seller', [HomeController::class, 'seller'])->name('seller');
-});
 
 
 

@@ -254,10 +254,10 @@
                         <td>{{ $order->name }}</td>
                         <td>{{ $order->email }}</td>
                         <td>{{ $order->total_quantity }}</td>
-                        <td>${{ number_format($order->total_price) }}</td>
+                        <td>{{ number_format($order->total_price) }}đ</td>
                         <td>{{ $order->payment_method }}</td>
                         <td>{{ $order->status }}</td>
-                        <td><a href="/orders/cancel-form/{{ $order->id }}"><i class='bx bx-message-alt-x icon'></i></a></td>
+                        <td><a href="admin/orders/cancel-form/{{ $order->id }}"><i class='bx bx-message-alt-x icon'></i></a></td>
                         <td><a href="/orders/edit-order/{{ $order->id }}"><i class='bx bx-message-square-edit icon'></i></a></td>
                         <td><button class="order-details-btn" onclick="viewInforDetails({{ $order->id }})"><i class='bx bx-user icon'></i></button></td>
                         <td><button class="order-details-btn" onclick="viewOrderDetails({{ $order->id}})"><i class='bx bx-basket icon'></i></button></td>
