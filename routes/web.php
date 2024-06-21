@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Redirect;
 */
 // Xử lí Home,đăng nhập
 route::get("/",[BookController::class,"index"])->name("index");
-
 route::get("/home",[HomeController::class,"index"])->middleware('verified');
 Route::middleware([
     'auth:sanctum',
@@ -71,12 +70,9 @@ Route::get('/order-details/{orderId}', [OrderController::class, 'OrderDetails'])
 // Xử lí các chức năng của Admin
 Route::middleware(['role:2', 'checkUserNotDeleted',])->group(function () {
     Route::get('/admin', [HomeController::class, 'admin'])->name('admin');
-    // Route các chức năng quản lí người dùng
+
     Route::get('/customer-list', [HomeController::class, 'CustomersList'])->name("user-list"); //Hiển thị danh sách tài khoản
-    Route::get('/users/delete/{user}', [HomeController::class, 'Destroy'])->name('users.destroy'); //Xóa mềm tài khoản
-    Route::get('/users/restore/{user}', [HomeController::class, 'Restore'])->name('users.restore'); //Khôi phục tài khoản
-    Route::get('/users/edit-users/{id}', [HomeController::class, 'show'])->name('form-edit-user');//Form Cập nhật thông tin khách hàng
-    Route::post('/users/edit-users/{id}', [HomeController::class, 'edit'])->name('home.edit-user');//Edit sản phẩm
+
 });
  // các chức năng của seller
  Route::middleware(['role:1', 'checkUserNotDeleted',])->group(function () {
@@ -96,7 +92,12 @@ Route::middleware(['role:0','checkUserNotDeleted', ])->group(function () {
 }); 
 // Các chức năng của admin và seller
 Route::middleware(['role:1,2', 'checkUserNotDeleted',])->group(function () {
-    
+     
+    // Route các chức năng quản lí người dùng
+    Route::get('/users/delete/{user}', [HomeController::class, 'Destroy'])->name('users.destroy'); //Xóa mềm tài khoản
+    Route::get('/users/restore/{user}', [HomeController::class, 'Restore'])->name('users.restore'); //Khôi phục tài khoản
+    Route::get('/users/edit-users/{id}', [HomeController::class, 'show'])->name('form-edit-user');//Form Cập nhật thông tin khách hàng
+    Route::post('/users/edit-users/{id}', [HomeController::class, 'edit'])->name('home.edit-user');//Edit sản phẩm
      // Route các chức năng quản lí sản phảm
      Route::get('/Products-list', [BookController::class, 'ProductsList'])->name("product-list"); // Hiển thị danh sách sản phẩm
      Route::get('/products/form-add', [BookController::class, 'form_add'])->name('add-product');//Form Thêm sản phẩm

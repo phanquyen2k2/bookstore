@@ -77,8 +77,16 @@ class BookController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function form_add()
-    {
-        return view("Products.AddProducts");
+    {   // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
+        return view("Products.AddProducts",compact("layout"));
     }
 
     /**
@@ -161,9 +169,17 @@ class BookController extends Controller
     public function show($id)
     {
         $product = Book::with(['author', 'category'])->withTrashed()->find($id);
-
+        // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
         if ($product) {
-            return view("Products.EditProduct", compact('product'));
+            return view("Products.EditProduct", compact('product','layout'));
         } else {
             return redirect()->route('product-list')->with('error', 'Không tìm thấy sản phẩm');
         }

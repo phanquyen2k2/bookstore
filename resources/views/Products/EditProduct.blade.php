@@ -1,4 +1,4 @@
-@extends('Admin.LayoutAdmin');
+@extends($layout)
 @section('content')
 <!DOCTYPE html>
 <html lang="en" title="Coding design">

@@ -19,7 +19,6 @@ class CreateOrderUserEmailsTable extends Migration
             $table->foreign('user_email')->references('email')->on('users')->onDelete('cascade');
         });
     }
-
     public function down()
     {
         Schema::dropIfExists('order_user_emails');

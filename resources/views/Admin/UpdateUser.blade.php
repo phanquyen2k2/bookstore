@@ -1,4 +1,4 @@
-@extends('Admin.LayoutAdmin');
+@extends($layout)
 @section('content')
 <!DOCTYPE html>
 <html lang="en" title="Coding design">
@@ -228,8 +228,13 @@
                                                 </div>
                                                 <div class="form-outline mb-4">
                                                     <h5>Role</h5>
-                                                    <input type="text" name="role" class="form-control form-control-lg" value="{{ $user->role }}" required>
+                                                    @if(auth()->user()->role == 2)
+                                                        <input type="text" name="role" class="form-control form-control-lg" value="{{ $user->role }}" required>
+                                                    @else
+                                                        <input type="text" name="role" class="form-control form-control-lg" value="{{ $user->role }}" disabled>
+                                                    @endif
                                                 </div>
+                                                
                                                 <!-- Thêm dòng hiển thị validate -->
                                                 @if ($errors->any())
                                                     <div class="alert alert-danger">

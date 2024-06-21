@@ -25,7 +25,7 @@ class HomeController extends Controller
         } elseif($role == "0"){
             return redirect("user");
         } elseif($role == "1"){
-            return redirect("user.list");
+            return redirect("seller");
         }
     }
     else return view('dashboard');
@@ -77,6 +77,11 @@ class HomeController extends Controller
     {
         return redirect("Order-list-user");
     }
+    public function seller()
+    {
+        return redirect("seller/list-users");
+    }
+    
 
     
     public function Userlist() {
@@ -122,9 +127,17 @@ class HomeController extends Controller
     {
         // Tìm người dùng theo ID, bao gồm cả người dùng đã bị xóa mềm
         $user = User::withTrashed()->find($id);
-
+        // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
         if ($user) {
-            return view("Admin.UpdateUser", compact('user'));
+            return view("Admin.UpdateUser", compact('user','layout'));
         } else {
             return redirect()->route('user-list')->with('error', 'User not found');
         }

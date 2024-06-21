@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use DB;
 use Illuminate\Http\Request;
 use App\Models\Order;
@@ -67,9 +66,16 @@ class OrderController extends Controller
     {
        // Lấy thông tin của đơn hàng từ cơ sở dữ liệu
        $order = Order::findOrFail($orderId);
-
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
        // Trả về view hiển thị form cập nhật đơn hàng và truyền dữ liệu của đơn hàng vào view
-       return view('Orders.UpdateOrder', compact('order'));
+       return view('Orders.UpdateOrder', compact('order','layout'));
     }
         /**
      * Update the specified resource in storage.

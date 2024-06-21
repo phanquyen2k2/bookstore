@@ -366,19 +366,17 @@
                                 </tr>
                             </thead>
                             <tbody>`;
-                    
-                    data.forEach(detail => {
-                        tableHTML += `
-                            <tr>
-                                
-                                <td>${detail.order_id}</td>
-                                <td>${detail.product_id}</td>
-                                <td>${detail.product_name}</td>
-                                <td>${detail.quantity}</td>
-                                <td>${detail.price}</td>
-                            </tr>`;
-                    });
-
+                            data.forEach(detail => {
+                            const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price);
+                            tableHTML += `
+                                <tr>
+                                    <td>${detail.order_id}</td>
+                                    <td>${detail.product_id}</td>
+                                    <td>${detail.product_name}</td>
+                                    <td>${detail.quantity}</td>
+                                    <td>${priceFormatted}</td>
+                                </tr>`;
+                        });
                     tableHTML += `</tbody></table>`;
                     orderDetailsTable.innerHTML = tableHTML;
                     document.getElementById('orderDetailModal').style.display = 'block';
