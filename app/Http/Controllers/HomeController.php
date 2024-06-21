@@ -25,7 +25,7 @@ class HomeController extends Controller
         } elseif($role == "0"){
             return redirect("user");
         } elseif($role == "1"){
-            return view("seller");
+            return redirect("user.list");
         }
     }
     else return view('dashboard');
@@ -78,10 +78,13 @@ class HomeController extends Controller
         return redirect("Order-list-user");
     }
 
-    public function seller()
-    {
-        return view('seller');
+    
+    public function Userlist() {
+        // Lấy tất cả người dùng bao gồm cả những người dùng đã bị xóa tạm thời, ngoại trừ những người có role là 2 hoặc 1
+        $users = User::withTrashed()->whereNotIn('role', [1, 2])->get();
+        return view('Seller.CustomersList', compact('users'));
     }
+    
     // Xử lí hiển thị danh sách người dùng
     public function CustomersList(){
         $users = User::withTrashed()->where('role', '!=', 2)->get();
@@ -189,19 +192,28 @@ class HomeController extends Controller
         return redirect()->back()->with('success', 'Thank you for contacting us!');
     }
     public function formContact(){
-       
+        
         return view("Home.contact");
     }
     public function header(){     
         return view("layouts.headercart");
     }
     public function formContactAdmin()
-    {
+    {   
+        // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
         // Lấy danh sách tất cả các liên hệ
         $contacts = Contact::all();
 
         // Trả về view hiển thị danh sách liên hệ
-        return view('Admin.Contact', compact('contacts'));
+        return view('Admin.Contact', compact('contacts','layout'));
     }
     public function DeleteContact($id)
     {

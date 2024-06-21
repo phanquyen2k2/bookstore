@@ -365,17 +365,17 @@
                             </thead>
                             <tbody>`;
                     
-                    data.forEach(detail => {
-                        tableHTML += `
-                            <tr>
-                                
-                                <td>${detail.order_id}</td>
-                                <td>${detail.product_id}</td>
-                                <td>${detail.product_name}</td>
-                                <td>${detail.quantity}</td>
-                                <td>${detail.price}</td>
-                            </tr>`;
-                    });
+                         data.forEach(detail => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${detail.order_id}</td>
+                                    <td>${detail.product_id}</td>
+                                    <td>${detail.product_name}</td>
+                                    <td>${detail.quantity}</td>
+                                    <td>${parseFloat(detail.price).toLocaleString('vi-VN')}đ</td>
+                                </tr>`;
+                        });
+
 
                     tableHTML += `</tbody></table>`;
                     orderDetailsTable.innerHTML = tableHTML;

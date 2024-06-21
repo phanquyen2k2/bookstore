@@ -141,7 +141,7 @@ class CartController extends Controller
         return view("Cart.Thanks");
     }
     public function ProcessCheckout(Request $request)
-{
+    {
     // Kiểm tra dữ liệu đầu vào
     $validatedData = $request->validate([
         'name' => 'required|string|max:255',
@@ -222,137 +222,135 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Failed to process your order. Please try again later.');
         }
     }
-}
-
-public function handleVnPayPayment(Request $request)
-{
-    $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    $vnp_Returnurl = route('vnpay.return');
-    $vnp_TmnCode = "GEZ7615C"; // Mã website tại VNPAY 
-    $vnp_HashSecret = "B3HRANFNPKX38L2P5C6XHN7XNFFYI2Z7"; // Chuỗi bí mật
-
-    $vnp_TxnRef = rand(100000, 999999); // Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này 
-    $vnp_OrderInfo = "Thanh toán hóa đơn";
-    $vnp_OrderType = "billpayment";
-    $vnp_Amount = $request->session()->get('cart')->totalPrice * 100; // Số tiền thanh toán
-    $vnp_Locale = "vn";
-    $vnp_BankCode = "NCB";
-    $vnp_IpAddr = $request->ip();
-
-    $inputData = array(
-        "vnp_Version" => "2.1.0",
-        "vnp_TmnCode" => $vnp_TmnCode,
-        "vnp_Amount" => $vnp_Amount,
-        "vnp_Command" => "pay",
-        "vnp_CreateDate" => date('YmdHis'),
-        "vnp_CurrCode" => "VND",
-        "vnp_IpAddr" => $vnp_IpAddr,
-        "vnp_Locale" => $vnp_Locale,
-        "vnp_OrderInfo" => $vnp_OrderInfo,
-        "vnp_OrderType" => $vnp_OrderType,
-        "vnp_ReturnUrl" => $vnp_Returnurl,
-        "vnp_TxnRef" => $vnp_TxnRef,
-    );
-
-    if (!empty($vnp_BankCode)) {
-        $inputData['vnp_BankCode'] = $vnp_BankCode;
     }
 
-    ksort($inputData);
-    $query = "";
-    $i = 0;
-    $hashdata = "";
-    foreach ($inputData as $key => $value) {
-        if ($i == 1) {
-            $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-        } else {
-            $hashdata .= urlencode($key) . "=" . urlencode($value);
-            $i = 1;
+    public function handleVnPayPayment(Request $request)
+    {
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = route('vnpay.return');
+        $vnp_TmnCode = "GEZ7615C"; // Mã website tại VNPAY 
+        $vnp_HashSecret = "B3HRANFNPKX38L2P5C6XHN7XNFFYI2Z7"; // Chuỗi bí mật
+
+        $vnp_TxnRef = rand(100000, 999999); // Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này 
+        $vnp_OrderInfo = "Thanh toán hóa đơn";
+        $vnp_OrderType = "billpayment";
+        $vnp_Amount = $request->session()->get('cart')->totalPrice * 100; // Số tiền thanh toán
+        $vnp_Locale = "vn";
+        $vnp_BankCode = "NCB";
+        $vnp_IpAddr = $request->ip();
+
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => $vnp_Locale,
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => $vnp_OrderType,
+            "vnp_ReturnUrl" => $vnp_Returnurl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+        );
+
+        if (!empty($vnp_BankCode)) {
+            $inputData['vnp_BankCode'] = $vnp_BankCode;
         }
-        $query .= urlencode($key) . "=" . urlencode($value) . '&';
-    }
 
-    $vnp_Url = $vnp_Url . "?" . $query;
-    if (!empty($vnp_HashSecret)) {
-        $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
-        $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-    }
-
-    return redirect($vnp_Url);
-}
-
-public function vnpayReturn(Request $request)
-{
-    $inputData = $request->all();
-
-    // Kiểm tra dữ liệu đầu vào
-    if (!isset($inputData['vnp_ResponseCode']) || !isset($inputData['vnp_SecureHash'])) {
-        return redirect()->route('checkout')->with('error', 'Invalid data from VnPay.');
-    }
-
-    $vnp_HashSecret = "B3HRANFNPKX38L2P5C6XHN7XNFFYI2Z7"; // Chuỗi bí mật
-    $vnp_SecureHash = $inputData['vnp_SecureHash'];
-    unset($inputData['vnp_SecureHash']);
-
-    ksort($inputData);
-    $hashData = "";
-    foreach ($inputData as $key => $value) {
-        $hashData .= urlencode($key) . "=" . urlencode($value) . '&';
-    }
-    $hashData = trim($hashData, '&');
-    $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
-
-    // Kiểm tra chữ ký
-    if ($secureHash === $vnp_SecureHash) {
-        if ($inputData['vnp_ResponseCode'] == '00') {
-            // Lấy giỏ hàng từ session
-            $oldCart = Session::has('cart') ? Session::get('cart') : null;
-
-            // Lấy thông tin checkout từ session
-            $checkoutData = $request->session()->get('checkout');
-
-            if (!$checkoutData || !$oldCart) {
-                return redirect()->route('checkout')->with('error', 'Session data missing.');
+        ksort($inputData);
+        $query = "";
+        $i = 0;
+        $hashdata = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashdata .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
             }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
 
-            $id_user = auth()->check() ? auth()->user()->id : null;
+        $vnp_Url = $vnp_Url . "?" . $query;
+        if (!empty($vnp_HashSecret)) {
+            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+        }
 
-            // Tạo đơn hàng
-            $order = Order::create([
-                'id_user' => $id_user,
-                'name' => $checkoutData['name'],
-                'email' => $checkoutData['email'],
-                'address' => $checkoutData['address'],
-                'phone' => $checkoutData['phone'],
-                'note' => $checkoutData['note'],
-                'total_quantity' => $oldCart->totalQuanty,
-                'total_price' => $oldCart->totalPrice,
-                'payment_method' => $checkoutData['payment_method'],
-                'status' => Order::STATUS_PENDING,
-            ]);
+        return redirect($vnp_Url);
+    }
 
-            // Lưu chi tiết đơn hàng
-            foreach ($oldCart->products as $product) {
-                OrderDetail::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product['productinfor']->id,
-                    'product_name' => $product['productinfor']->title,
-                    'quantity' => $product['quanty'],
-                    'price' => $product['productinfor']->price,
+    public function vnpayReturn(Request $request)
+    {
+        $inputData = $request->all();
+
+        // Kiểm tra dữ liệu đầu vào
+        if (!isset($inputData['vnp_ResponseCode']) || !isset($inputData['vnp_SecureHash'])) {
+            return redirect()->route('checkout')->with('error', 'Invalid data from VnPay.');
+        }
+
+        $vnp_HashSecret = "B3HRANFNPKX38L2P5C6XHN7XNFFYI2Z7"; // Chuỗi bí mật
+        $vnp_SecureHash = $inputData['vnp_SecureHash'];
+        unset($inputData['vnp_SecureHash']);
+
+        ksort($inputData);
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            $hashData .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
+        $hashData = trim($hashData, '&');
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        // Kiểm tra chữ ký
+        if ($secureHash === $vnp_SecureHash) {
+            if ($inputData['vnp_ResponseCode'] == '00') {
+                // Lấy giỏ hàng từ session
+                $oldCart = Session::has('cart') ? Session::get('cart') : null;
+
+                // Lấy thông tin checkout từ session
+                $checkoutData = $request->session()->get('checkout');
+
+                if (!$checkoutData || !$oldCart) {
+                    return redirect()->route('checkout')->with('error', 'Session data missing.');
+                }
+
+                $id_user = auth()->check() ? auth()->user()->id : null;
+
+                // Tạo đơn hàng
+                $order = Order::create([
+                    'id_user' => $id_user,
+                    'name' => $checkoutData['name'],
+                    'email' => $checkoutData['email'],
+                    'address' => $checkoutData['address'],
+                    'phone' => $checkoutData['phone'],
+                    'note' => $checkoutData['note'],
+                    'total_quantity' => $oldCart->totalQuanty,
+                    'total_price' => $oldCart->totalPrice,
+                    'payment_method' => $checkoutData['payment_method'],
+                    'status' => Order::STATUS_PENDING,
                 ]);
+                // Lưu chi tiết đơn hàng
+                foreach ($oldCart->products as $product) {
+                    OrderDetail::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product['productinfor']->id,
+                        'product_name' => $product['productinfor']->title,
+                        'quantity' => $product['quanty'],
+                        'price' => $product['productinfor']->price,
+                    ]);
+                }
+                // Xóa giỏ hàng và thông tin checkout sau khi đặt hàng thành công
+                $request->session()->forget('cart');
+                $request->session()->forget('checkout');
+
+                return redirect()->route('thankyou');
+            } else {
+                return redirect()->route('checkout')->with('error', 'Payment failed. Please try again.');
             }
-
-            // Xóa giỏ hàng và thông tin checkout sau khi đặt hàng thành công
-            $request->session()->forget('cart');
-            $request->session()->forget('checkout');
-
-            return redirect()->route('thankyou');
         } else {
-            return redirect()->route('checkout')->with('error', 'Payment failed. Please try again.');
+            return redirect()->route('checkout')->with('error', 'Invalid signature.');
         }
-    } else {
-        return redirect()->route('checkout')->with('error', 'Invalid signature.');
     }
-}
 }
 ?>

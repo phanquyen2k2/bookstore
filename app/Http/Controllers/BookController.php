@@ -9,7 +9,7 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
-
+use Auth;
 class BookController extends Controller
 {
     /**
@@ -56,8 +56,20 @@ class BookController extends Controller
     public function ProductsList()
     {
         $books = Book::with(['author', 'category'])->withTrashed()->get();
-        return view("Products.Products", compact('books'));
+        
+        // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view("Products.Products", compact('books', 'layout'));
     }
+
 
     /**
      * Hiển thị form thêm sản phẩm.

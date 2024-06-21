@@ -72,7 +72,7 @@
                                         <h5>{{ number_format(Session::get("cart")->totalPrice )}}đ</h5>
                                     </div>
                                     @endif
-                                    <div class="btn-group d-flex justify-content-center" style="width: 320px;">
+                                    <div class="btn-group d-flex justify-content-center" style="width: 280px;">
                                         <a class="btn btn-dark btn-lg" href="{{ url("/Check-out") }}" data-mdb-ripple-color="dark">Register</a>
                                     </div>                                    
                                 </div>

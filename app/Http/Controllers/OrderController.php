@@ -13,8 +13,17 @@ class OrderController extends Controller
 {   
       
     public function OrderList(){
+        // Xác định layout dựa trên vai trò của người dùng
+        if (Auth::user()->role == '1') {
+            $layout = 'Seller.LayoutSeller';
+        } elseif (Auth::user()->role == '2') {
+            $layout = 'Admin.LayoutAdmin';
+        } else {
+            // Trường hợp không có vai trò hoặc vai trò không xác định, bạn có thể đặt một layout mặc định hoặc báo lỗi.
+            abort(403, 'Unauthorized action.');
+        }
         $orderslist=DB::table('orders')->get();
-        return view("Orders.OrderList",compact('orderslist'));
+        return view("Orders.OrderList",compact('orderslist','layout'));
     }
     public function OrderDetails($orderId){
         $orderDetails = DB::table('order_details')->where('order_id', $orderId)->get();
@@ -276,7 +285,7 @@ class OrderController extends Controller
  
          return redirect()->route('orderlist')->with('success', 'Order has been cancelled.');
      }
-    }
+}
     
     
     

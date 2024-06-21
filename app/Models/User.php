@@ -19,7 +19,19 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use TwoFactorAuthenticatable;
     use SoftDeletes; // Thêm SoftDeletes
+    
+    /**
+     * Check if the user has a specific role.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        return $this->role === $role;
+    }
 
+    // Rest of your User model...
     /**
      * The attributes that are mass assignable.
      *

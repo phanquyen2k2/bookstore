@@ -21,7 +21,7 @@ class CheckUserNotDeleted
 
         if ($user && $user->trashed()) {
             Auth::logout();
-            return redirect('/login')->withErrors(['email' => 'Tài khoản của bạn đã bị xóa.']);
+            return redirect('/login')->withErrors(['error' => 'Tài khoản của bạn đã bị xóa.']);
         }
         return $next($request);
     }

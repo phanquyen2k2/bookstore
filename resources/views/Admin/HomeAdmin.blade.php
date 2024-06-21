@@ -278,6 +278,9 @@ body {
 .status.paid {
   background: #0099ff; /* Green color for paid status */
 }
+.status.processing {
+  background: #ba03fd; /* Green color for paid status */
+}
 
 .status.cancelled {
   background: #ff1100; /* Red color for unpaid status */

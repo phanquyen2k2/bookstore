@@ -1,4 +1,4 @@
-@extends('User.LayoutUser');
+@extends('Admin.LayoutAdmin');
 @section('content')
 <!DOCTYPE html>
 <html lang="en" title="Coding design">
@@ -235,7 +235,6 @@
                                         <label for="cancel_reason" class="form-label">Reason for Cancellation</label>
                                         <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="4" required></textarea>
                                     </div>
-
                                     <div class="d-grid">
                                         <button type="submit" class="btn btn-danger btn-lg">Cancel Order</button>
                                     </div>

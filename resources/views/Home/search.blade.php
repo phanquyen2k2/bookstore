@@ -124,7 +124,5 @@
         </div>
     </section>
 </body>
-
-
     <!-- End Category Area -->
 @endsection
