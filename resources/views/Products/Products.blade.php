@@ -1,11 +1,15 @@
+@extends($layout)
+@section('content')
 <!DOCTYPE html>
 <html lang="en" title="Coding design">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <style>
         * {
             padding: 0;
@@ -93,7 +97,7 @@
         td img {
             width: 36px;
             height: 36px;
-            border-radius: 50%;
+            border-radius: 10px; */
             vertical-align: middle;
         }
 
@@ -148,12 +152,51 @@
             height: 0;
             transition: 0.2s ease-in-out 0.5s;
         }
+        td {
+            text-align: center; /* Căn giữa theo chiều ngang */
+            vertical-align: middle; /* Căn giữa theo chiều dọc */
+            height: 100px; /* Chiều cao của ô */
+        }
+
+        .icon {
+            font-size: 25px; /* Tăng kích thước của biểu tượng */
+        }
+        .modal-dialog {
+            max-width: 70%; /* Tăng chiều rộng của modal */
+            margin: auto;
+            margin-top: 20px;
+        }
+        .close {
+            font-size: 2rem;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            cursor: pointer;
+        }
+        .modal-content {
+            padding: 2rem; /* Thêm khoảng đệm bên trong modal */
+        }
+        .modal-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .modal-header img {
+            width: 100px;
+            height: auto;
+        }
+        .modal-header .h2 {
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
+    
     <main class="table">
         <section class="table__header">
             <h2>Product List</h2>
+            <a  class="btn btn-primary" href="{{ route('add-product') }}">Add Products</a>
         </section>
         <section class="table__body">
             <table>
@@ -161,15 +204,15 @@
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
-                        <th>Description</th>
                         <th>Price</th>
                         <th>Image</th>
-                        <th>Author ID</th>
-                        <th>Category ID</th>
-                        <th>Published At</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Quanty</th>
+                        <th>Delete At</th>
+                        <th>Update</th>
+                        <th>Restore</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,22 +220,55 @@
                     <tr>
                         <td>{{ $book->id }}</td>
                         <td>{{ $book->title }}</td>
-                        <td>{{ $book->description }}</td>
-                        <td>${{ number_format($book->price, 2) }}</td>
-                        <td><img src="{{ $book->image_url }}" alt="Book Image" style="width: 36px;"></td>
+                        <td>{{ number_format($book->price) }}đ</td>
+                        <td><img src="{{ $book->image_url }}" alt="Book Image" style="width: 120px; height:100px"></td>
                         <td>{{ $book->author->name }}</td> <!-- Assuming 'name' is the column containing author names -->
                         <td>{{ $book->category->name }}</td> <!-- Assuming 'name' is the column containing category names -->
-                        <td>{{ $book->published_at }}</td>
-                        <td>{{ $book->status }}</td>
-                        <td>{{ $book->created_at }}</td>
-                        <td>{{ $book->updated_at }}</td>
+                        <td>{{ $book->quanty }}</td>
+                        <td>{{ $book->deleted_at }}</td>
+                        <td><a href="/products/edit-product/{{ $book->id}}"><i class='bx bx-message-square-edit icon'></i></td>
+                        <td><a href="/products/restore/{{ $book->id}}"><i class='bx bx-archive-in icon'></i></a></td>
+                        <td><a href="/products/delete/{{ $book->id}}"><i class='bx bx-trash icon'></i></a></td>
                     </tr>
                     @endforeach
                 </tbody>
-                
-                
             </table>
         </section>
     </main>
 </body>
 </html>
+
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        @if(session('success'))
+        alertify.success("{{ session('success') }}");
+        @endif
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        @if ($errors->any())
+            // Hiển thị thông báo lỗi sử dụng Alertify
+            alert("{{ $errors->first() }}");
+        @endif
+    });
+</script>
+ <!-- JavaScript -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+ <!-- CSS -->
+ <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css" />
+ <!-- Default theme -->
+ <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css" />
+ <!-- Semantic UI theme -->
+ <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/semantic.min.css" />
+ <!-- Bootstrap theme -->
+ <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/bootstrap.min.css" />
+ <script>
+@endsection
+    
+
+
+

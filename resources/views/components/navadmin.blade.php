@@ -22,21 +22,22 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="../View/HomeShow.php?showall=1">Home Admin</a>
+            <a class="navbar-brand" href="{{ route("admin") }}">HOME ADMIN</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
                 aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fas fa-bars"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-link active" aria-current="page" href="">Customers</a>
-                    <a class="nav-link" href="">Products</a>
-                    <a class="nav-link" href="">List of Orders</a>
+                    <a class="nav-link active" aria-current="page" href="{{ route("user-list") }}">CUSTOMERS</a>
+                    <a class="nav-link" href="{{ route("product-list") }}">PRODUCTS</a>
+                    <a class="nav-link" href="{{ route("orderlist") }}">LIST OF ORDERS</a>
+                    <a class="nav-link" href="{{ route("admin.contact") }}">CONTACT</a>
                 </div>
+                
             </div>
+            <a class="nav-link" href="{{ route("index") }}">Home Page</i></a>
         </div>
     </nav>
-
-    
 </body>
 </html>

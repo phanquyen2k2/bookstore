@@ -4,17 +4,23 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckRole
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        if ($user && $user->role == $role) {
+        // Chuyển danh sách các vai trò từ chuỗi thành mảng
+        $rolesArray = array_map('intval', $roles);
+
+        if ($user && in_array($user->role, $rolesArray)) {
             return $next($request);
         }
-        return redirect('index');
+
+        return redirect('home'); // Hoặc trả về một lỗi hoặc trang khác phù hợp
     }
 }
+
 

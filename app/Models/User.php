@@ -19,7 +19,19 @@ class User extends Authenticatable implements MustVerifyEmail
     use Notifiable;
     use TwoFactorAuthenticatable;
     use SoftDeletes; // Thêm SoftDeletes
+    
+    /**
+     * Check if the user has a specific role.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        return $this->role === $role;
+    }
 
+    // Rest of your User model...
     /**
      * The attributes that are mass assignable.
      *
@@ -29,7 +41,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'email',
     ];
+    public function orderUserEmails()
+    {
+        return $this->hasMany(OrderUserEmail::class, 'user_email', 'email');
+    }
+
+    public function orders()
+    {
+        return $this->hasManyThrough(Order::class, OrderUserEmail::class, 'user_email', 'email', 'email', 'order_email');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

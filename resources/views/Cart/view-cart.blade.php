@@ -1,4 +1,4 @@
-@extends('home.app')
+@extends('Cart.LayoutCart')
 
 @section('title', 'Shopping Cart')
 
@@ -10,14 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+   
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
         integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
-</head>
-
+    </head>
 </html>
-<section class="h-80 h-custom" id="list-cart">
+<section class="h-80 h-custom" style="margin-top: -100px;" id="list-cart">
     <div class="container py-5 h-80">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12">
@@ -31,45 +29,45 @@
                                     </div>
                                     <hr class="my-4">
                                     <!-- Sample Item Start -->
-                                    @if(Session::has("cart") !=null)
-                                    @foreach (Session::get("cart")->products as $item)
-                                    <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                        <div class="col-md-2 col-lg-2 col-xl-2">
-                                            <img src="{{ $item['productinfor']->image_url }}"
-                                                class="img-fluid rounded-3" alt="">
-                                        </div>
-                                        <div class="col-md-3 col-lg-3 col-xl-3">
-                                            <h6 class="text-black mb-0">{{ $item['productinfor']->title }}</h6>
-                                        </div>
-                                        <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
-                                            <div class="input-group">
-                                                <input min="0" max="50" name="quantity" value="{{ $item['quanty'] }}"
-                                                    type="number" class="form-control form-control-sm"
-                                                    data-id="{{$item['productinfor']->id}}"
-                                                    id="quanty-item-{{$item['productinfor']->id}}" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                                            <h6 class="mb-0">${{ $item['price'] }}</h6>
-                                        </div>
-                                        <div class="col-md-1 col-lg-1 col-xl-1 text-end">
-                                            <a href="#" class="text-muted"><i class="fas fa-times"
-                                                    onclick="DeleteListItemCart({{$item['productinfor']->id}})"></i></a>
-                                        </div>
+                                    <div class="table-responsive" style="max-height: 300px; overflow-x: auto; overflow-y: auto;">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col" class="text-center">Image</th>
+                                                    <th scope="col" class="text-center">Product Name</th>
+                                                    <th scope="col" class="text-center">Quantity</th>
+                                                    <th scope="col" class="text-center">Price</th>
+                                                    <th scope="col" class="text-center"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (Session::get("cart")->products as $item)
+                                                <tr>
+                                                    <td style="max-width: 50px;" class="text-center"><img src="{{ $item['productinfor']->image_url }}" class="img-fluid rounded-3" alt=""></td>
+                                                    <td class="text-center"><strong>{{ $item['productinfor']->title }}</strong></td>
+                                                    <td class="text-center">
+                                                        <input min="0" max="50" name="quantity" value="{{ $item['quanty'] }}" type="number" class="form-control form-control-sm text-center" data-id="{{$item['productinfor']->id}}" id="quanty-item-{{$item['productinfor']->id}}" />
+                                                    </td>
+                                                    <td class="text-center"><strong>{{ number_format($item['price']) }}đ</strong></td>
+                                                    <td class="text-center">
+                                                        <a href="#" class="text-muted"><i class="fas fa-times" onclick="DeleteListItemCart({{$item['productinfor']->id}})"></i></a>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    @endforeach
-                                    @endif
+                                
                                     <!-- Sample Item End -->
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="pt-5">
-                                            <h6 class="mb-0"><a href="{{ url(" /") }}" class="text-body"><i
+                                            <h6 class="mb-0"><a href="{{ url("/") }}" class="text-body"><i
                                                         class="fas fa-long-arrow-alt-left me-2"></i>Back to shop</a>
                                             </h6>
                                         </div>
                                         <div class="pt-5">
-                                            <h6 class="mb-0"><a class="btn btn-dark btn-lg btn-update" href="#"
-                                                    data-mdb-ripple-color="red">Update Cart</a></h6>
-                                        </div>
+                                            <h6 class="mb-0"><a class="btn btn-dark btn-lg btn-update" href="" data-mdb-ripple-color="red">Update Cart</a></h6>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
@@ -85,14 +83,12 @@
                                     <hr class="my-4">
                                     <div class="d-flex justify-content-between mb-5 shopping-cart-item">
                                         <h5 class="text-uppercase">Total price</h5>
-                                        <h5>${{ Session::get("cart")->totalPrice }}</h5>
+                                        <h5>{{ number_format(Session::get("cart")->totalPrice )}}đ</h5>
                                     </div>
                                     @endif
-                                    <div class="btn-group">
-                                        <a class="btn btn-dark btn-lg" href="{{ url("/Check-out") }}"
-                                            data-mdb-ripple-color="dark">Register</a>
-
-                                    </div>
+                                    <div class="btn-group d-flex justify-content-center" style="width: 280px;">
+                                        <a class="btn btn-dark btn-lg" href="{{ url("/Check-out") }}" data-mdb-ripple-color="dark">Register</a>
+                                    </div>                                    
                                 </div>
                             </div>
                         </div>
@@ -102,7 +98,7 @@
         </div>
     </div>
 </section>
-
+@endsection
 <style>
     body {
         background-color: #ffff;
@@ -240,7 +236,6 @@ function updateCart() {
             $("input[name='quantity']").each(function () {
                 var productId = $(this).data("id");
                 var newQuantity = $(this).val();
-
                 items.push({
                     key: productId,
                     value: newQuantity
@@ -260,8 +255,7 @@ function updateCart() {
                         // Cập nhật tổng số lượng và tổng giá trị
                         $(".summary-heading").text("Summary");
                         $(".shopping-cart-item").eq(0).find("h5").eq(1).text(response.totalQuanty);
-                        $(".shopping-cart-item").eq(1).find("h5").eq(1).text("$" + response.totalPrice);
-
+                        $(".shopping-cart-item").eq(1).find("h5").eq(1).text(response.totalPrice.toLocaleString('vi-VN') + "đ");
                         // Cập nhật giá và số lượng cho từng sản phẩm (nếu cần)
                         $("input[name='quantity']").each(function () {
                             var productId = $(this).data("id");
@@ -283,4 +277,3 @@ function updateCart() {
         });
     });
 </script>
-@endsection
