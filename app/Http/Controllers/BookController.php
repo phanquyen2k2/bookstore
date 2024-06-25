@@ -18,24 +18,32 @@ class BookController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $products = Book::whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
-            ->paginate(8);
+{
+    $products = Book::whereNull('deleted_at')
+        ->orderBy('created_at', 'desc')
+        ->paginate(8);
 
-        $bestSellingProducts = OrderDetail::select('product_id', DB::raw('SUM(quantity) as total_quantity'))
-            ->groupBy('product_id')
-            ->orderBy('total_quantity', 'desc')
-            ->take(4)
-            ->get()
-            ->map(function ($orderDetail) {
-                $book = Book::find($orderDetail->product_id);
-                $book->total_quantity = $orderDetail->total_quantity;
-                return $book;
-            });
+    $bestSellingProducts = collect(); // Tạo một bộ sưu tập trống
+    $orderDetails = OrderDetail::select('product_id', DB::raw('SUM(quantity) as total_quantity'))
+        ->groupBy('product_id')
+        ->orderBy('total_quantity', 'desc')
+        ->get();
 
-        return view("Home.home", compact('products', 'bestSellingProducts'));
+    foreach ($orderDetails as $orderDetail) {
+        if ($bestSellingProducts->count() >= 4) {
+            break;
+        }
+
+        $book = Book::find($orderDetail->product_id);
+        if ($book && $book->deleted_at === null) {
+            $book->total_quantity = $orderDetail->total_quantity;
+            $bestSellingProducts->push($book);
+        }
     }
+
+    return view("Home.home", compact('products', 'bestSellingProducts'));
+}
+
 
     /**
      * Hiển thị danh sách sách.
@@ -101,9 +109,9 @@ class BookController extends Controller
 
         if ($book) {
             $book->delete();
-            return redirect()->route('product-list')->with('success', 'Sản phẩm đã được xóa thành công');
+            return redirect()->route('product-list')->with('success', 'The product has been successfully deleted');
         } else {
-            return redirect()->route('product-list')->with('error', 'Không tìm thấy sản phẩm');
+            return redirect()->route('product-list')->with('error', 'No products found');
         }
     }
 
@@ -119,9 +127,9 @@ class BookController extends Controller
 
         if ($book) {
             $book->restore();
-            return redirect()->route('product-list')->with('success', 'Sản phẩm đã được khôi phục thành công');
+            return redirect()->route('product-list')->with('success', 'The product has been restored successfully');
         } else {
-            return redirect()->route('product-list')->with('error', 'Không tìm thấy sản phẩm');
+            return redirect()->route('product-list')->with('error', 'No products found');
         }
     }
 
@@ -157,7 +165,7 @@ class BookController extends Controller
         $product->published_at = Carbon::now();
         $product->save();
 
-        return redirect()->route('product-list')->with('success', 'Sản phẩm đã được thêm thành công');
+        return redirect()->route('product-list')->with('success', 'The product has been added successfully');
     }
 
     /**
@@ -181,7 +189,7 @@ class BookController extends Controller
         if ($product) {
             return view("Products.EditProduct", compact('product','layout'));
         } else {
-            return redirect()->route('product-list')->with('error', 'Không tìm thấy sản phẩm');
+            return redirect()->route('product-list')->with('error', 'No products found');
         }
     }
 
@@ -226,9 +234,9 @@ class BookController extends Controller
             $product->deleted_at = $request->input('delete');
             $product->save();
 
-            return redirect()->route('product-list')->with('success', 'Sản phẩm đã được cập nhật thành công');
+            return redirect()->route('product-list')->with('success', 'The product has been updated successfully');
         } else {
-            return redirect()->route('product-list')->with('error', 'Không tìm thấy sản phẩm');
+            return redirect()->route('product-list')->with('error', 'No products found');
         }
     }
 
@@ -243,7 +251,7 @@ class BookController extends Controller
         $books = Book::with(['author', 'category'])->find($id);
 
         if (!$books) {
-            return redirect()->back()->with('error', 'Không tìm thấy sách');
+            return redirect()->back()->with('error', 'No books found');
         }
 
         return view("Home.product-details", compact('books'));

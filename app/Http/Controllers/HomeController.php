@@ -31,7 +31,7 @@ class HomeController extends Controller
     else return view('dashboard');
     }
     public function admin()
-{
+    {
     // Lấy tổng số lượng đơn hàng
     $totalOrders = Order::count();
 
@@ -39,7 +39,7 @@ class HomeController extends Controller
     $totalProducts = Book::count();
 
     // Lấy tổng số người dùng
-    $totalUsers = User::count();
+    $totalUsers = User::where('role', '!=', 2)->count();
 
     // Lấy tổng số tiền đã bán được
     $totalEarnings = Order::sum('total_price');
@@ -70,20 +70,18 @@ class HomeController extends Controller
     ->get();
 
     return view('Admin.HomeAdmin', compact('totalOrders', 'totalProducts', 'totalUsers', 'totalEarnings', 'orders', 'topBuyers', 'topSellingProducts'));
-}
-
+    }
 
     public function user()
     {
         return redirect("Order-list-user");
     }
+
     public function seller()
     {
         return redirect("seller/list-users");
     }
-    
 
-    
     public function Userlist() {
         // Lấy tất cả người dùng bao gồm cả những người dùng đã bị xóa tạm thời, ngoại trừ những người có role là 2 hoặc 1
         $users = User::withTrashed()->whereNotIn('role', [1, 2])->get();

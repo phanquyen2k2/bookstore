@@ -227,7 +227,6 @@ class OrderController extends Controller
         if (!$order) {
             return redirect()->route('orderlist.user')->with('error', 'Order not found.');
         }
-
         // Validate dữ liệu lý do hủy đơn hàng
         $validatedData = $request->validate([
             'cancel_reason' => 'required|string|max:500',

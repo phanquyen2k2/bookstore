@@ -1,6 +1,6 @@
 @extends('home.app')
 
-@section('title', 'Author')
+@section('title', 'Book Detail')
 
 @section('content')
 <!doctype html>

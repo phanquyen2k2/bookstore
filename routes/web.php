@@ -70,9 +70,7 @@ Route::get('/order-details/{orderId}', [OrderController::class, 'OrderDetails'])
 // Xử lí các chức năng của Admin
 Route::middleware(['role:2', 'checkUserNotDeleted',])->group(function () {
     Route::get('/admin', [HomeController::class, 'admin'])->name('admin');
-
     Route::get('/customer-list', [HomeController::class, 'CustomersList'])->name("user-list"); //Hiển thị danh sách tài khoản
-
 });
  // các chức năng của seller
  Route::middleware(['role:1', 'checkUserNotDeleted',])->group(function () {

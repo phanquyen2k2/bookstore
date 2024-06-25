@@ -24,7 +24,7 @@
                
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Total</span>
-                    <strong>{{ Session::get("cart")->totalPrice }}đ</strong>
+                    <strong>{{ number_format(Session::get("cart")->totalPrice )}}đ</strong>
                 </li>
                 @endif
             </ul>

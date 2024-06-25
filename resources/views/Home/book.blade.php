@@ -1,6 +1,6 @@
 @extends('home.app')
 
-@section('title', 'Home Page')
+@section('title', 'List Books')
 
 @section('content')
 <style>
